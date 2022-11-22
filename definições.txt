@@ -1,0 +1,13 @@
+<programa> -> <decl_sequência>
+<decl_sequência> -> <declaração> {;<declaração>}
+<declaração> -> <decl_atribuição> | <decl_leitura> | <decl_escrita>
+<decl_atribuição> -> <identificador> = <expr>
+<decl_leitura> -> ">>" <identificador>
+<decl_escrita> -> "<<" <expr>
+<expr> -> <expr_simples> [<relacional> <expr_simples>]
+<relacional> -> < | > | <= | >= | == | !=
+<expr_simples> -> <termo> {<soma> <termo>}
+<soma> -> + | -
+<termo> -> <fator> {<mult> <fator>}
+<mult> -> * | / | %
+<fator> -> (expr_simples) | <numero>
