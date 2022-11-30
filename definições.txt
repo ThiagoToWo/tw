@@ -1,13 +1,40 @@
 <programa> -> <decl_sequência>
-<decl_sequência> -> <declaração> {;<declaração>}
-<declaração> -> <decl_atribuição> | <decl_leitura> | <decl_escrita>
-<decl_atribuição> -> <identificador> = <expr>
-<decl_leitura> -> ">>" <identificador>
-<decl_escrita> -> "<<" <expr>
-<expr> -> <expr_simples> [<relacional> <expr_simples>]
+
+<decl_sequência> -> <declaração> {; <declaração>}
+
+<declaração> -> <decl_atribuição> | <decl_leitura> | <decl_escrita> |
+                <decl_condicional> | <ramificação> | <rótulo>
+
+<decl_atribuição> -> <identificador> = <expr_lógica>
+
+<decl_leitura> -> >> <identificador>
+
+<decl_escrita> -> << <expr_lógica>
+
+<decl_condicional> -> ?<expr_lógica>? <rótulo>
+
+<ramificação> -> -> <rótulo>
+
+<expr_lógica> -> <expr_log_termo> {<disjunção> <expr_log_termo>}
+
+<disjunção> -> |
+
+<expr_log_termo> -> <expr_log_fator> {<conjunção> <expr_log_fator>}
+
+<conjunção> -> &
+
+<expr_log_fator> -> (<expr_lógica>) | <expr_relacional>
+
+<expr_relacional> -> <expr_simples> [<relacional> <expr_simples>]
+
 <relacional> -> < | > | <= | >= | == | !=
+
 <expr_simples> -> <termo> {<soma> <termo>}
+
 <soma> -> + | -
+
 <termo> -> <fator> {<mult> <fator>}
+
 <mult> -> * | / | %
+
 <fator> -> (expr_simples) | <numero>

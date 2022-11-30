@@ -1,27 +1,13 @@
-/*
-* <programa> -> <decl_sequência>
-* <decl_sequência> -> <declaração> {;<declaração>}
-* <declaração> -> <decl_atribuição> | <decl_leitura> | <decl_escrita>
-* <decl_atribuição> -> <identificador> = <expr>
-* <decl_leitura> -> ">>" <identificador>
-* <decl_escrita> -> "<<" <expr>
-* <expr> -> <expr_simples> [<relacional> <expr_simples>]
-* <relacional> -> < | > | <= | >= | == | !=
-* <expr_simples> -> <termo> {<soma> <termo>}
-* <soma> -> + | -
-* <termo> -> <fator> {<mult> <fator>}
-* <mult> -> * | / | %
-* <fator> -> (expr_simples) | <numero>
-*/
-
 #include <stdio.h> // printf(), FILE, fopen(), fclose(), scanf(), fscanf()
 #include <stdlib.h> // exit(), malloc()
 #include <string.h> // strlen(), strcpy(), strtok(), strchr(), strcmp()
 #include <ctype.h> // isalpha(), isdigit(), isspace(), toupper()
 
-FILE* file;
-double var[26];
-char token;
+FILE* file; /*program file*/
+double var[26]; /*array of variables*/
+char token; /*current character in program*/
+int idx; /*current token index*/
+char prog[10000]; /*pointer to program string*/
 
 void program();
 void statement_seq();
@@ -29,7 +15,13 @@ void statement();
 void assign();
 void read();
 void write();
-double expr();
+void conditional();
+void branch();
+void label();
+double logical_expr();
+double log_expr_term();
+double log_expr_factor();
+double relational_expr();
 double simple_expr();
 double term();
 double factor();
@@ -50,21 +42,157 @@ void error(int e) {
     exit(1);
 }
 
-int getusch() { /*get non space char*/
-    int temp;
+void getusch() { /*get non space char*/
+    while (isspace(token = prog[++idx]));
+}
 
-    while (isspace(temp = fgetc(file)));
+void scannum(double* n) { /*get number from current token in prog*/
+    char temp[100];
+    int i = 0;
+    int state = 1;
+    printf("temp = %s; token = %c; state %d\n", temp, token, state);
+    while (state != 9) {
+        switch (state) {
+            case 1:
+                if (token == '+' || token == '-') {
+                    temp[i++] = token;
+                    token = prog[++idx];
+                    state = 2;
+                    printf("temp = %s; token = %c; state %d\n", temp, token, state);
+                } else if (isdigit(token)) {
+                    temp[i++] = token;
+                    token = prog[++idx];
+                    state = 3;
+                    printf("temp = %s; token = %c; state %d\n", temp, token, state);
+                } else {
+                    error(1);
+                }
+                break;
+            case 2:
+                if (isdigit(token)) {
+                    temp[i++] = token;
+                    token = prog[++idx];
+                    state = 3;
+                    printf("temp = %s; token = %c; state %d\n", temp, token, state);
+                } else {
+                    error(1);
+                } 
+                break;
+            case 3:
+                if (isdigit(token)) {
+                    temp[i++] = token;
+                    token = prog[++idx];
+                    printf("temp = %s; token = %c; state %d\n", temp, token, state);
+                } else if (token == '.') {
+                    temp[i++] = token;
+                    token = prog[++idx];
+                    state = 4;
+                    printf("temp = %s; token = %c; state %d\n", temp, token, state);
+                } else if (token == 'E' || token == 'e') {
+                    temp[i++] = token;
+                    token = prog[++idx];
+                    state = 6;
+                    printf("temp = %s; token = %c; state %d\n", temp, token, state);
+                } else {
+                    token = prog[--idx];                    
+                    state = 9;
+                    printf("temp = %s; token = %c; state %d\n", temp, token, state);
+                }
+                break;
+            case 4:
+                if (isdigit(token)) {
+                    temp[i++] = token;
+                    token = prog[++idx];
+                    state = 5;
+                    printf("temp = %s; token = %c; state %d\n", temp, token, state);
+                } else {
+                    error(1);
+                }
+                break;
+            case 5:
+                if (isdigit(token)) {
+                    temp[i++] = token;
+                    token = prog[++idx]; 
+                    printf("temp = %s; token = %c; state %d\n", temp, token, state);                   
+                } else if (token == 'E' || token == 'e') {
+                    temp[i++] = token;
+                    token = prog[++idx];
+                    state = 6;
+                    printf("temp = %s; token = %c; state %d\n", temp, token, state);
+                } else {
+                    token = prog[--idx];                    
+                    state = 9;
+                    printf("temp = %s; token = %c; state %d\n", temp, token, state);
+                }
+                break;
+            case 6:
+                if (token == '+' || token == '-') {
+                    temp[i++] = token;
+                    token = prog[++idx];
+                    state = 7;
+                    printf("temp = %s; token = %c; state %d\n", temp, token, state);
+                } else if (isdigit(token)) {
+                    temp[i++] = token;
+                    token = prog[++idx];
+                    state = 8;
+                    printf("temp = %s; token = %c; state %d\n", temp, token, state);
+                } else {
+                    error(1);
+                }
+                break;
+            case 7:
+                if (isdigit(token)) {
+                    temp[i++] = token;
+                    token = prog[++idx];
+                    state = 8;
+                    printf("temp = %s; token = %c; state %d\n", temp, token, state);
+                } else {
+                    error(1);
+                } 
+                break;
+            case 8:
+                if (isalpha(token)) {
+                    temp[i++] = token;
+                    token = prog[++idx];
+                    printf("temp = %s; token = %c; state %d\n", temp, token, state);
+                } else {
+                    token = prog[--idx];                    
+                    state = 9;
+                    printf("temp = %s; token = %c; state %d\n", temp, token, state);
+                }
+        }
+    }
 
-    return temp;
+    temp[i] = '\0';
+
+    *n = atof(temp);
 }
 
 void match(char expectedToken) {
     if (token == expectedToken) {
-        token = getusch();
+        getusch();
     } else {
-        error(1);
+        error(1); /*Unexpected token*/
     }
 }
+
+void readFile() {
+    int i = 0;
+
+    while ((prog[i] = fgetc(file)) != EOF) i++;
+}
+
+void printProgram() {
+    int i = 0;
+
+    while (prog[i] != '\0') {
+        printf("%c", prog[i]);
+        i++;
+    }
+
+    printf("\n>--------------Start execution--------------<\n");
+}
+
 
 void main(int argc, char* argv[]) {
     if (argc != 2) {
@@ -75,20 +203,20 @@ void main(int argc, char* argv[]) {
     if (!(file = fopen(argv[1], "r"))) {
         printf("Error openning file.\n");
         exit(1);
-    } else {
-        printf("File opened successfully.\n");
-    }
+    }   
 
-    token = getusch();
+    readFile();
+    fclose(file);
+    printProgram();
+    
+    idx = -1;
+    getusch();
     program();
 
-    if (token == EOF){
+    if (token == '\0'){
         printf("Finish. Press a key to exit.");
-        getchar();
-        fclose(file);
-    } else {
-        error(0);
-    } 
+        getchar();        
+    }
 }
 
 void program() {
@@ -105,42 +233,54 @@ void statement_seq() {
 }
 
 void statement() {    
-    if (!isalpha(token) && token != '<' && token != '>') error(1);
-    
     switch (token) {
-        case '>':
+        case '>': /*read*/
             match('>');
             if (token == '>') {
                 match('>');
                 read();
             } else {
-                error(5);
+                error(5); /*Invalid command*/
             }
             break;
-        case '<':
+        case '<': /*write*/
             match('<');
             if (token == '<') {
                 match('<');
                 write();
             } else {
-                error(5);
+                error(5); /*Invalid command*/
             }
-            break;        
-        default:
-            assign();
+            break; 
+        case '?': /*conditional*/
+            conditional();
+            break;
+        case '-': /*branch*/
+            match('-');
+            if (token == '>') {
+                match('>');
+                branch();
+            } else {
+                error(5); /*Invalid command*/
+            }
+    }  
+
+    if (isalpha(token)) { /*assignment*/
+        assign();
+    } else if (isdigit(token)) { /*lable handle*/
+        label();
     }
-     
 }
 
 void assign() {
     char variable = token;
-    token = getusch();
+    getusch();
 
     if (token == '=') {
         match('=');
-        var[toupper(variable) - 'A'] = expr();
+        var[toupper(variable) - 'A'] = logical_expr();
     } else {
-        error(4);
+        error(4); /*Invalid variable name*/
     }
 }
 
@@ -148,18 +288,72 @@ void read() {
     if (isalpha(token)) {
         printf("? ");
         scanf("%lf%*c", &var[toupper(token) - 'A']);
-        token = getusch();     
+        getusch();     
     } else {
-        error(1);
+        error(1); /*Unexpected token*/
     }
 }
 
 void write() {
-    double result = expr();
+    double result = logical_expr();
     printf("= %lf\n", result);
 }
 
-double expr() {
+void conditional() {
+    match('?');
+    double expression = logical_expr();
+    match('?');
+
+    if (expression == 1) {
+        statement_seq();
+    }
+}
+
+void branch() {
+
+}
+
+void label() {
+
+}
+
+double logical_expr() {
+    double temp = log_expr_term();
+
+    while (token == '|') {
+        match('|');
+        temp = (int) temp | (int) log_expr_term();
+    }
+
+    return temp;
+}
+
+double log_expr_term() {
+    double temp = log_expr_factor();
+
+    while (token == '&') {
+        match('&');
+        temp = (int) temp & (int) log_expr_factor();
+    }
+
+    return temp;
+}
+
+double log_expr_factor() {
+    double temp;
+
+    if (token == '(') {
+        match('(');
+        temp = logical_expr();
+        match(')');
+    } else {
+        temp = relational_expr();
+    }
+
+    return temp;
+}
+
+double relational_expr() {
     double temp = simple_expr();
 
     switch (token) {
@@ -250,13 +444,12 @@ double factor() {
         match('(');
         temp = simple_expr();
         match(')');
-    } else if (isdigit(token)) {
-        ungetc(token, file);
-        fscanf(file, "%lf", &temp);
-        token = getusch();
+    } else if (isdigit(token) || token == '+' || token == '-') {
+        scannum(&temp);
+        getusch();
     } else if (isalpha(token)) {
         temp = var[toupper(token) - 'A'];
-        token = getusch();
+        getusch();
     } else {
         error(2);
     }
