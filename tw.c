@@ -177,6 +177,13 @@ void readFile() {
 */
 void markLabels() {
     double temp;
+    
+    token = prog[++idx];
+
+    if (isdigit(token)) {
+        scannum(&temp);
+        labl[idx++] = temp;
+    }
 
     while (idx < PROGLEN) {
         token = prog[++idx];
@@ -365,7 +372,7 @@ double logical_expr() {
 
 double log_expr_term() {
     double temp = log_expr_factor();
-
+    
     while (token == '&') {
         match('&');
         temp = (int) temp & (int) log_expr_factor();
@@ -390,7 +397,7 @@ double log_expr_factor() {
 
 double relational_expr() {
     double temp = simple_expr();
-
+    
     switch (token) {
         case '<':
             match('<');
@@ -415,6 +422,15 @@ double relational_expr() {
             if (token == '=') {
                 match('=');
                 temp = (temp == simple_expr());
+            } else {
+                error(3);
+            }
+            break;
+        case '!':
+            match('!');
+            if (token == '=') {
+                match('=');
+                temp = (temp != simple_expr());
             } else {
                 error(3);
             }
