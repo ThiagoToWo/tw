@@ -15,7 +15,7 @@ LINGUAGEM DE PROGRAMAÇÃO TW
 
 <decl_condicional> -> ?<expr_lógica>? <ramificação>
 
-<ramificação> -> -> <endereço>
+<ramificação> -> -> <rótulo>
 
 <rótulo> -> <número>
 
@@ -41,4 +41,4 @@ LINGUAGEM DE PROGRAMAÇÃO TW
 
 <mult> -> * | / | %
 
-<fator> -> (expr_simples) | <numero>
+<fator> -> (expr_simples) | <identificador> | <numero>
