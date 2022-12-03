@@ -1,6 +1,7 @@
 #include <stdio.h> // printf(), FILE, fopen(), fclose(), scanf()
 #include <stdlib.h> // exit()
 #include <ctype.h> // isalpha(), isdigit(), isspace(), toupper()
+#include <string.h> // strcmp()
 
 #define PROGLEN 10000
 #define VARLEN  26
@@ -9,7 +10,8 @@ FILE* file; /*program file*/
 double var[VARLEN]; /*array of variables*/
 char token; /*current character in program*/
 int idx; /*current token index*/
-char prog[PROGLEN]; /*pointer to program string*/
+char prog[PROGLEN]; /*optimized program string pointer*/
+char cont[PROGLEN]; /*program content text*/
 double labl[PROGLEN]; /*label characters and their values*/
 
 void program();
@@ -21,6 +23,7 @@ void write();
 void conditional();
 void branch();
 void label();
+void comment();
 double logical_expr();
 double log_expr_term();
 double log_expr_factor();
@@ -33,13 +36,17 @@ void error(int e) {
     static char* errors[] = {
         "Error",
         "Unexpected token",
-        "Scanning error",
+        "Factor error",
         "Invalid comparison simbol",
         "Invalid variable name",
         "Invalid command"
     };
 
-    printf("token = %c. ", token);
+    printf("Snippet: ");
+    for (int i = -5; i <= 5; i++)
+        printf("%c", prog[idx + i]);
+
+    printf(". Current token: %c. ", token);
     printf("%s\n", errors[e]);
 
     exit(1);
@@ -166,7 +173,32 @@ void match(char expectedToken) {
 void readFile() {
     int i = 0;
 
-    while ((prog[i] = fgetc(file)) != EOF) i++;
+    while ((cont[i] = fgetc(file)) != EOF) i++;
+    cont[i] = '\0';
+}
+
+void optimize() {
+    int p = 0;
+    int c = 0;
+
+    prog[p] = cont[c];
+
+    while ((prog[p]) != '\0') {
+        if (isspace(prog[p])) {
+            while (isspace(cont[++c]));
+            prog[p] = cont[c];            
+        } 
+        
+        if (prog[p] == '#') {
+            while (cont[++c] != '\n' && cont[c] != '\0');
+            prog[p] = cont[c];
+            continue;
+        }
+
+        prog[++p] = cont[++c];          
+    }
+
+    prog[p] = '\0';
 }
 
 /*
@@ -199,7 +231,22 @@ void markLabels() {
     }
 }
 
+void printContent() {
+    printf("CONTENT:\n");
+
+    int i = 0;
+
+    while (cont[i] != '\0') {
+        printf("%c", cont[i]);
+        i++;
+    }
+
+    printf("\n");
+}
+
 void printProgram() {
+    printf("OPTIMIZED:\n");
+
     int i = 0;
 
     while (prog[i] != '\0') {
@@ -207,13 +254,17 @@ void printProgram() {
         i++;
     }
 
-    printf("\n>--------------Start execution--------------<\n");
+    printf("\n");
 }
 
-
 void main(int argc, char* argv[]) {
-    if (argc != 2) {
-        printf("Use: .\\tw <nome_do_arquivo>");
+    if (argc < 2 || argc > 3) {
+        printf("tw\tversion: 1.1\n");
+        printf("Use: .\\tw <file_name> [<options>]\n");
+        printf("Options availables:\n");
+        printf("\tp:\tprint program content optimized.\n");
+        printf("\tc:\tprint program content text.\n");
+        printf("\tcp:\tprint text and optimized program content.\n");
         exit(1);
     }
 
@@ -225,15 +276,30 @@ void main(int argc, char* argv[]) {
     readFile();
     fclose(file);
 
+    optimize();
     idx = -1;
     markLabels();
-    printProgram();
+
+    if (argv[2]) {
+        if (strcmp(argv[2], "c") == 0)
+            printContent();
+        else if(strcmp(argv[2], "p") == 0)
+            printProgram();
+        else if(strcmp(argv[2], "cp") == 0) {
+            printContent();
+            printProgram();
+        } else {
+            printf("Invalid option.\n");
+        }
+    }
+    
+    printf("--------------Start execution--------------\n");
     
     idx = -1;
     getusch();
     program();
 
-    if (token == EOF){        
+    if (token == '\0'){        
         printf("Finish. Press a key to exit.");
         getchar();        
     }
