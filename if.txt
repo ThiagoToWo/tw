@@ -1,0 +1,12 @@
+#Programa para ilustrar o comando if
+
+>> a;
+
+?a > 5? -> 1;    
+    << 0;       #se a <= 5, imprime 0 e continua o programa  
+1;
+
+#continuacao do programa caso "a > 5" seja
+#verdadeiro ou falso
+<< a;
+<< 497   

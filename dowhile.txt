@@ -1,0 +1,11 @@
+#Programa para simular a estutura de repeticao
+#de verificacao posterior (do...while)
+
+a = 0;
+
+1;
+    a = a + 1; #executa uma vez o incremento de a e imprime seu valor
+    << a;
+?a < 10? -> 1; #se a < 10, repete o processo voltando no (1)
+
+<< 497 #continuacao do programa

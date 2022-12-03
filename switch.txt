@@ -1,0 +1,20 @@
+#Programa para exemplificar multiplas escolhas (switch)
+
+>> a;
+
+?a == 1? -> 1;
+?a == 2? -> 2;
+?a == 3? -> 3;
+?a == 4? -> 4;
+    << 0; -> 5; #caso default
+4;
+    << 4; -> 5; #se a = 4, imprime 4 e vai para (5)
+3;
+    << 3; -> 5; #se a = 3, imprime 4 e vai para (5)
+2;
+    << 2; -> 5; #se a = 2, imprime 4 e vai para (5)
+1;
+    << 1;       #se a = 1, imprime 4 e continua o programa
+5;
+
+<< 497          #continuacao do programa

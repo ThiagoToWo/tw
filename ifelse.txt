@@ -1,0 +1,13 @@
+#Programa para ilustrar os comandos if...else
+
+>> a;
+
+?a > 5? -> 1;    
+    << 0; -> 2;  #se a <= 5, imprime 0 e vai para (2) 
+1;
+    << 1;        #se a > 5, então imprime 1 e a e continua o programa
+    << a;
+2;
+
+
+<< 497 #continuacao do programa
