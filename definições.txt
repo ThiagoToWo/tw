@@ -27,11 +27,13 @@ LINGUAGEM DE PROGRAMAÇÃO TW
 
 <conjunção> -> &
 
-<expr_log_fator> -> [<expr_lógica>] | <expr_relacional>
+<expr_log_fator> -> <expr_relacional> [<igualdade> <expr_relacional>]
 
-<expr_relacional> -> <expr_simples> [<relacional> <expr_simples>]
+<igualdade> -> == | !=
 
-<relacional> -> < | > | <= | >= | == | !=
+<expr_relacional> -> <expr_simples> [<desigualdade> <expr_simples>]
+
+<desigualdade> -> < | > | <= | >=
 
 <expr_simples> -> <termo> {<soma> <termo>}
 
@@ -41,4 +43,4 @@ LINGUAGEM DE PROGRAMAÇÃO TW
 
 <mult> -> * | / | %
 
-<fator> -> (expr_simples) | <identificador> | <numero>
+<fator> -> (expr_lógica) | <identificador> | <numero>

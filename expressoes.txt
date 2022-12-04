@@ -1,11 +1,13 @@
 a = 4;
 b = 5;
 
-p = a > b;
-q = 2 * (a + 4) / 2 == b + 12 % 9;
-r = a <= b;
+# p = a <= b                            VERDADEIRO
+# q = 2 * (a + 4) / 2 == b + 12 % 9     VERDADEIRO
+# r = a == b                            FALSO
 
-<< p;
-<< q;
-<< r;
-<< [p | q] & r
+
+# (p | q) & r                           FALSO
+#<< (a <= b | 2 * (a + 4) / 2 == b + 12 % 9) & a == b;
+
+# p | q & r                             VERDADEIRO
+#<< a <= b | 2 * (a + 4) / 2 == b + 12 % 9 & a == b

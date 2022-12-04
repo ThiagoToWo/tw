@@ -259,7 +259,7 @@ void printProgram() {
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 1.1\n");
+        printf("tw\tversion: 1.2\n");
         printf("Use: .\\tw <file_name> [<options>]\n");
         printf("Options availables:\n");
         printf("\tp:\tprint program content optimized.\n");
@@ -448,14 +448,26 @@ double log_expr_term() {
 }
 
 double log_expr_factor() {
-    double temp;
+    double temp = relational_expr();
 
-    if (token == '[') {
-        match('[');
-        temp = logical_expr();
-        match(']');
-    } else {
-        temp = relational_expr();
+    switch (token) {
+        case '=':
+            match('=');
+            if (token == '=') {
+                match('=');
+                temp = (temp == relational_expr());
+            } else {
+                error(3);
+            }
+            break;
+        case '!':
+            match('!');
+            if (token == '=') {
+                match('=');
+                temp = (temp != relational_expr());
+            } else {
+                error(3);
+            }
     }
 
     return temp;
@@ -481,25 +493,7 @@ double relational_expr() {
                 temp = (temp >= simple_expr());
             } else {
                 temp = (temp > simple_expr());
-            }
-            break;
-        case '=':
-            match('=');
-            if (token == '=') {
-                match('=');
-                temp = (temp == simple_expr());
-            } else {
-                error(3);
-            }
-            break;
-        case '!':
-            match('!');
-            if (token == '=') {
-                match('=');
-                temp = (temp != simple_expr());
-            } else {
-                error(3);
-            }
+            }        
     }
 
     return temp;
@@ -550,7 +544,7 @@ double factor() {
 
     if (token == '(') {
         match('(');
-        temp = simple_expr();
+        temp = logical_expr();
         match(')'); 
     } else if (isdigit(token) || token == '+' || token == '-') {
         scannum(&temp);
