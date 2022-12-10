@@ -11,7 +11,7 @@ LINGUAGEM DE PROGRAMAÇÃO TW
 
 <decl_leitura> -> >> <identificador>
 
-<decl_escrita> -> << <expr_lógica>
+<decl_escrita> -> << <expr_lógica> | << "<texto>"
 
 <decl_condicional> -> ?<expr_lógica>? <ramificação>
 

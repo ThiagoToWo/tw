@@ -5,6 +5,8 @@
 
 #define PROGLEN 10000
 #define VARLEN  26
+#define STRLEN  1000
+#define NUMLEN  100
 
 FILE* file; /*program file*/
 double var[VARLEN]; /*array of variables*/
@@ -57,7 +59,7 @@ void getusch() { /*get non space char*/
 }
 
 void scannum(double* n) { /*get number from current token in prog*/
-    char temp[100];
+    char temp[NUMLEN];
     int i = 0;
     int state = 1;
     
@@ -259,7 +261,7 @@ void printProgram() {
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 1.2\n");
+        printf("tw\tversion: 1.3\n");
         printf("Use: .\\tw <file_name> [<options>]\n");
         printf("Options availables:\n");
         printf("\tp:\tprint program content optimized.\n");
@@ -300,7 +302,7 @@ void main(int argc, char* argv[]) {
     program();
 
     if (token == '\0'){        
-        printf("Finish. Press a key to exit.");
+        printf("\nFinish. Press a key to exit.");
         getchar();        
     }
 }
@@ -372,7 +374,6 @@ void assign() {
 
 void read() {
     if (isalpha(token)) {
-        printf("? ");
         scanf("%lf%*c", &var[toupper(token) - 'A']);
         getusch();     
     } else {
@@ -381,8 +382,36 @@ void read() {
 }
 
 void write() {
-    double result = logical_expr();
-    printf("= %lf\n", result);
+    double result;
+    char string[STRLEN];
+
+    if (token == '\"') {
+        token = prog[++idx];
+        
+        int i = 0;
+        while (token != '\"') {
+            if (token == '_') {
+                string[i++] = ' ';
+            } else if (token == '\\') {
+                string[i++] = '\n';
+            } else {
+                string[i++] = token;
+            }
+            
+            token = prog[++idx];            
+        }
+
+        string[i] = '\0';
+        token = prog[++idx];
+
+        printf("%s", string);        
+    } else if (token == '\\') {
+        printf("\n");
+        match('\\');        
+    } else {
+        result = logical_expr();
+        printf("%g", result);
+    }    
 }
 
 void conditional() {
@@ -413,7 +442,6 @@ void branch() {
 
         idx = pos;
         token = prog[idx];
-        statement_seq();
     } else {
         error(1);
     }
