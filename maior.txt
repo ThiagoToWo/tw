@@ -1,0 +1,29 @@
+#leia m
+#leia n
+
+#faça
+#    leia i
+#
+#    se i > m
+#        m = i
+#    
+#    n = n - 1
+#enquanto n > 0   
+
+<< "Quantos_numeros?_";
+>> n;
+<< "Digite_os_numeros\";
+>> m;
+
+1;
+    >> i;
+
+    ?i > m == 0? -> 2;
+        m = i;      #se i > m, faz m = i
+    2;
+
+    n = n - 1;
+?n > 1? -> 1;
+
+<< "o_maior_eh_";
+<< m
