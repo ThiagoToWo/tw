@@ -1,16 +1,16 @@
 #Programa para ilustrar o comando if
 
-<< "Digite_um_numero:_";
+<< "Digite um numero: ";
 >> a;
 
 ?a > 5? -> 1;  
-    << "o_numero_eh_menor_ou_igual_a_5_";
+    << "o numero eh menor ou igual a 5 ";
     << 0;       #se a <= 5, imprime 0 e continua o programa 
-    << "\"; 
+    << "\n"; 
 1;
 
 #continuacao do programa caso "a > 5" seja
 #verdadeiro ou falso
 << a;
-<< "\";
+<< "\n";
 << 497   

@@ -1,6 +1,6 @@
-<< "__ola,_mundo__";
+<< "  ola, mundo  ";
 << 497/9;
-<< "_";
-<< "eh_meu\_numero";
-<< "\";
-<< "tchau"
+<< "\a   ";
+<< "eh meu\n numero";
+<< "\n";
+<< "\ttchau?"

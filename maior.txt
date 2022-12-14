@@ -10,9 +10,9 @@
 #    n = n - 1
 #enquanto n > 0   
 
-<< "Quantos_numeros?_";
+<< "Quantos numeros? ";
 >> n;
-<< "Digite_os_numeros\";
+<< "Digite os numeros\n";
 >> m;
 
 1;
@@ -25,5 +25,5 @@
     n = n - 1;
 ?n > 1? -> 1;
 
-<< "o_maior_eh_";
+<< "o maior eh ";
 << m

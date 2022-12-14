@@ -1,17 +1,17 @@
 #Programa para ilustrar os comandos if...else
 
-<< "Digite_um_numero:_";
+<< "Digite um numero: ";
 >> a;
 
 ?a > 5? -> 1; 
-    << "o_numero_eh_menor_ou_igual_a_5_";
+    << "o numero eh menor ou igual a 5 ";
     << 0; -> 2;  #se a <= 5, imprime 0 e vai para (2) 
 1;
-    << "o_numero_eh_maior_que_5_";
+    << "o numero eh maior que 5 ";
     << 1;        #se a > 5, então imprime 1 e a e continua o programa
-    << "\";
+    << "\n";
     << a;
 2;
 
-<<"\";
+<<"\n";
 << 497 #continuacao do programa

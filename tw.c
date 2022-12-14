@@ -185,12 +185,16 @@ void optimize() {
 
     prog[p] = cont[c];
 
-    while ((prog[p]) != '\0') {
+    while (prog[p] != '\0') {
         if (isspace(prog[p])) {
             while (isspace(cont[++c]));
             prog[p] = cont[c];            
         } 
         
+        if (prog[p] == '\"') {
+            while ((prog[++p] = cont[++c]) != '\"');
+        }
+
         if (prog[p] == '#') {
             while (cont[++c] != '\n' && cont[c] != '\0');
             prog[p] = cont[c];
@@ -261,7 +265,7 @@ void printProgram() {
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 1.3\n");
+        printf("tw\tversion: 1.4\n");
         printf("Use: .\\tw <file_name> [<options>]\n");
         printf("Options availables:\n");
         printf("\tp:\tprint program content optimized.\n");
@@ -390,10 +394,31 @@ void write() {
         
         int i = 0;
         while (token != '\"') {
-            if (token == '_') {
-                string[i++] = ' ';
-            } else if (token == '\\') {
-                string[i++] = '\n';
+            if (token == '\\') {
+                token = prog[++idx];
+
+                switch (token) {
+                    case 'a':
+                        string[i++] = '\a';
+                        break;
+                    case 'b':
+                        string[i++] = '\b';
+                        break;
+                    case 'f':
+                        string[i++] = '\f';
+                        break;
+                    case 'n':
+                        string[i++] = '\n';
+                        break;
+                    case 'r':
+                        string[i++] = '\r';
+                        break;
+                    case 't':
+                        string[i++] = '\t';
+                        break;
+                    case 'v':
+                        string[i++] = '\v';                    
+                }                
             } else {
                 string[i++] = token;
             }
@@ -405,9 +430,6 @@ void write() {
         token = prog[++idx];
 
         printf("%s", string);        
-    } else if (token == '\\') {
-        printf("\n");
-        match('\\');        
     } else {
         result = logical_expr();
         printf("%g", result);

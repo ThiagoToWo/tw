@@ -1,20 +1,20 @@
 #Programa para ilustrar o uso de if...else if
 
-<< "Digite_um_numero:_";
+<< "Digite um numero: ";
 >> a;
 
 ?a > 5? -> 1;
     ?a < 5? -> 2;       #se a <= 5, verifica se a < 5
-        << "o_numero_eh_igual_a_5_";
+        << "o numero eh igual a 5 ";
         << 0; -> 3;     # se a = 5, imprime 0
     2;
-        << "o_numero_eh_menor_que_5_";
+        << "o numero eh menor que 5 ";
         << -1; -> 3;    #se a < 5, imprime -1 e continua o programa
 1;
-    << "o_numero_eh_maior_que_5_";
+    << "o numero eh maior que 5 ";
     << 1;               #se a > 5, imprime 1 e continua o programa
 3;
 
 #contuacao do programa
-<< "\";
+<< "\n";
 << 497

@@ -1,7 +1,7 @@
 #Calcula a raiz quarada
 
 3; 
-<< "raiz_quadrada_de_";
+<< "raiz quadrada de ";
 >> n;
 ?n < 0? -> 2;
 i = 0;
@@ -13,7 +13,7 @@ a = n / 2;
     a = (a + b) / 2;
     i = i + 1;
     << a;
-    << "\";
+    << "\n";
 ?i < 6? -> 1;
 
 -> 3;

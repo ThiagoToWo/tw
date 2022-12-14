@@ -1,31 +1,30 @@
 #Programa para exemplificar multiplas escolhas (switch)
 
-<< "Digite_um_numero:_";
+<< "Digite um numero: ";
 >> a;
 
 ?a == 1? -> 1;
 ?a == 2? -> 2;
 ?a == 3? -> 3;
 ?a == 4? -> 4;
-    << "voce_clicou_em_";
-    << 0;                   #caso default
-    << "\"; -> 5;
+    << "voce clicou em >= 5 ou <= 0";   #caso default
+    << "\n"; -> 5;
 4;
-    << "voce_clicou_em_";
-    << 4;                   #se a = 4, imprime 4 e vai para (5)
-    << "\"; -> 5;
+    << "voce clicou em ";
+    << 4;                       #se a = 4, imprime 4 e vai para (5)
+    << "\n"; -> 5;
 3;
-    << "voce_clicou_em_";
-    << 3;                   #se a = 3, imprime 4 e vai para (5)
-    << "\"; -> 5;
+    << "voce clicou em ";
+    << 3;                       #se a = 3, imprime 3 e vai para (5)
+    << "\n"; -> 5;
 2;
-    << "voce_clicou_em_";
-    << 2;                   #se a = 2, imprime 4 e vai para (5)
-    << "\"; -> 5;
+    << "voce clicou em ";
+    << 2;                       #se a = 2, imprime 2 e vai para (5)
+    << "\n"; -> 5;
 1;
-    << "voce_clicou_em_";
-    << 1;       #se a = 1, imprime 4 e continua o programa
-    << "\";
+    << "voce clicou em ";
+    << 1;                       #se a = 1, imprime 1 e continua o programa
+    << "\n";
 5;
 
-<< 497          #continuacao do programa
+<< 497                          #continuacao do programa
