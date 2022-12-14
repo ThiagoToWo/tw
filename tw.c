@@ -4,12 +4,12 @@
 #include <string.h> // strcmp()
 
 #define PROGLEN 10000
-#define VARLEN  26
+#define VARMAX  26
 #define STRLEN  1000
 #define NUMLEN  100
 
 FILE* file; /*program file*/
-double var[VARLEN]; /*array of variables*/
+double var[VARMAX]; /*array of variables*/
 char token; /*current character in program*/
 int idx; /*current token index*/
 char prog[PROGLEN]; /*optimized program string pointer*/
@@ -265,7 +265,7 @@ void printProgram() {
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 1.4\n");
+        printf("tw\tversion: 1.4.1\n");
         printf("Use: .\\tw <file_name> [<options>]\n");
         printf("Options availables:\n");
         printf("\tp:\tprint program content optimized.\n");
@@ -387,7 +387,6 @@ void read() {
 
 void write() {
     double result;
-    char string[STRLEN];
 
     if (token == '\"') {
         token = prog[++idx];
@@ -399,37 +398,34 @@ void write() {
 
                 switch (token) {
                     case 'a':
-                        string[i++] = '\a';
+                        printf("\a");
                         break;
                     case 'b':
-                        string[i++] = '\b';
+                        printf("\b");
                         break;
                     case 'f':
-                        string[i++] = '\f';
+                        printf("\f");
                         break;
                     case 'n':
-                        string[i++] = '\n';
+                        printf("\n");
                         break;
                     case 'r':
-                        string[i++] = '\r';
+                        printf("\r");
                         break;
                     case 't':
-                        string[i++] = '\t';
+                        printf("\t");
                         break;
                     case 'v':
-                        string[i++] = '\v';                    
+                        printf("\v");                   
                 }                
             } else {
-                string[i++] = token;
+                printf("%c", token);
             }
             
             token = prog[++idx];            
         }
 
-        string[i] = '\0';
-        token = prog[++idx];
-
-        printf("%s", string);        
+        token = prog[++idx];      
     } else {
         result = logical_expr();
         printf("%g", result);
