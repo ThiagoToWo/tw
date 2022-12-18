@@ -1,6 +1,6 @@
 #Calcula a raiz quarada
 
-3; 
+{3; 
 << "raiz quadrada de ";
 >> n;
 ?n < 0? -> 2;
@@ -17,4 +17,4 @@ a = n / 2;
 ?i < 6? -> 1;
 
 -> 3;
-2;
+2;}

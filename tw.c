@@ -12,6 +12,9 @@ FILE* file; /*program file*/
 double var[VARMAX]; /*array of variables*/
 char token; /*current character in program*/
 int idx; /*current token index*/
+int back_pt; /*point at which the program loops back when return is called*/
+int start; /*index at which the program starts*/
+int end; /*index at which the program ends*/
 char prog[PROGLEN]; /*optimized program string pointer*/
 char cont[PROGLEN]; /*program content text*/
 double labl[PROGLEN]; /*label characters and their values*/
@@ -24,8 +27,9 @@ void read();
 void write();
 void conditional();
 void branch();
+void subrotine();
 void label();
-void comment();
+void back();
 double logical_expr();
 double log_expr_term();
 double log_expr_factor();
@@ -36,12 +40,14 @@ double factor();
 
 void error(int e) {
     static char* errors[] = {
-        "Error",
-        "Unexpected token",
-        "Factor error",
-        "Invalid comparison simbol",
-        "Invalid variable name",
-        "Invalid command"
+        "Error",                           /*error(0)*/
+        "Unexpected token",                /*error(1)*/
+        "Factor error",                    /*error(2)*/
+        "Invalid comparison simbol",       /*error(3)*/
+        "Invalid variable name",           /*error(4)*/
+        "Invalid command",                 /*error(5)*/
+        "; expected",                      /*error(6)*/
+        "the program must start with {"    /*error(7)*/
     };
 
     printf("Snippet: ");
@@ -75,7 +81,7 @@ void scannum(double* n) { /*get number from current token in prog*/
                     token = prog[++idx];
                     state = 3;                    
                 } else {
-                    error(1);
+                    error(1); /*Unexpected token*/
                 }
                 break;
             case 2:
@@ -84,7 +90,7 @@ void scannum(double* n) { /*get number from current token in prog*/
                     token = prog[++idx];
                     state = 3;                    
                 } else {
-                    error(1);
+                    error(1); /*Unexpected token*/
                 } 
                 break;
             case 3:
@@ -110,7 +116,7 @@ void scannum(double* n) { /*get number from current token in prog*/
                     token = prog[++idx];
                     state = 5;                    
                 } else {
-                    error(1);
+                    error(1); /*Unexpected token*/
                 }
                 break;
             case 5:
@@ -136,7 +142,7 @@ void scannum(double* n) { /*get number from current token in prog*/
                     token = prog[++idx];
                     state = 8;                    
                 } else {
-                    error(1);
+                    error(1); /*Unexpected token*/
                 }
                 break;
             case 7:
@@ -145,7 +151,7 @@ void scannum(double* n) { /*get number from current token in prog*/
                     token = prog[++idx];
                     state = 8;                    
                 } else {
-                    error(1);
+                    error(1); /*Unexpected token*/
                 } 
                 break;
             case 8:
@@ -208,31 +214,49 @@ void optimize() {
 }
 
 /*
-* PRE-CONDITION: idx = -1
+* PRE-CONDITION: idx = 0 e token = prog[idx];
 * POST-CONDITION: 
-*   idx = PROGLEN
+*   idx = index od the last character
 *   token = last character
 */
 void markLabels() {
     double temp;
-    
-    token = prog[++idx];
+
+    if (token == '{') {
+        token = prog[++idx];
+    } else {
+        error(7); /*the program must start with {*/
+    }
 
     if (isdigit(token)) {
         scannum(&temp);
-        labl[idx++] = temp;
+        labl[idx] = temp;        
     }
 
-    while (idx < PROGLEN) {
+    while (prog[idx] != '\0') {
         token = prog[++idx];
 
         if (token == ';') {
-            while (isspace(token = prog[++idx]));
+            token = prog[++idx];
+
+            if (token == '}') {
+                token = prog[++idx];
+            }
 
             if (isdigit(token)) {
                 scannum(&temp);
-                labl[idx++] = temp;
+                labl[idx] = temp;
             }
+        }
+    }
+}
+
+void markBounds() {
+    for (int i = 0; prog[i] != '\0'; i++) {
+        if (prog[i] == '{') {
+            start = i;
+        } else if (prog[i] == '}') {
+            end = i;
         }
     }
 }
@@ -265,11 +289,11 @@ void printProgram() {
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 1.4.1\n");
+        printf("tw\tversion: 1.5\n");
         printf("Use: .\\tw <file_name> [<options>]\n");
         printf("Options availables:\n");
-        printf("\tp:\tprint program content optimized.\n");
         printf("\tc:\tprint program content text.\n");
+        printf("\tp:\tprint program content optimized.\n");
         printf("\tcp:\tprint text and optimized program content.\n");
         exit(1);
     }
@@ -283,8 +307,10 @@ void main(int argc, char* argv[]) {
     fclose(file);
 
     optimize();
-    idx = -1;
+    idx = 0;
+    token = prog[idx];
     markLabels();
+    markBounds();
 
     if (argv[2]) {
         if (strcmp(argv[2], "c") == 0)
@@ -301,27 +327,31 @@ void main(int argc, char* argv[]) {
     
     printf("--------------Start execution--------------\n");
     
-    idx = -1;
-    getusch();
+    idx = start;
+    token = prog[idx];
     program();
 
-    if (token == '\0'){        
+    if (token == '}'){        
         printf("\nFinish. Press a key to exit.");
         getchar();        
     }
 }
 
 void program() {
+    match('{');
     statement_seq();
 }
 
 void statement_seq() {
-    statement();
-
-    while (token == ';') {
-        match(';');     
+    while (token != '}') {
         statement();
-    }
+
+        if (token == ';') {
+            match(';');
+        } else {
+            error(6);
+        }
+    }    
 }
 
 void statement() {    
@@ -340,18 +370,31 @@ void statement() {
             if (token == '<') {
                 match('<');
                 write();
+            } else if (token == '-') { /*return*/
+                match('-');
+                match(';');
+                back();
             } else {
                 error(5); /*Invalid command*/
             }
-            break; 
+            break;
         case '?': /*conditional*/
             conditional();
-            break;
+            break;         
         case '-': /*branch*/
             match('-');
             if (token == '>') {
                 match('>');
                 branch();
+            } else {
+                error(5); /*Invalid command*/
+            }
+            break;        
+        case 's': /*subrotine*/
+            match('s');
+            if (token == 'b') {
+                match('b');
+                subrotine();
             } else {
                 error(5); /*Invalid command*/
             }
@@ -443,8 +486,7 @@ void conditional() {
         branch();
     } else {
         label();
-    }
-     
+    }     
 }
 
 void branch() {
@@ -453,7 +495,7 @@ void branch() {
 
     if (isdigit(token)) {
         scannum(&temp);
-        
+          
         for (pos = 0; pos < PROGLEN; pos++) {
             if (temp == labl[pos]) break;
         }
@@ -461,14 +503,26 @@ void branch() {
         idx = pos;
         token = prog[idx];
     } else {
-        error(1);
+        error(1); /*Unexpected token*/
     }
+}
+
+void subrotine() {
+    int i = 0;
+    while (prog[idx + i] != ';') i++;
+    back_pt = idx + i;
+    branch();
 }
 
 void label() {
     double temp;
     scannum(&temp);
     getusch();
+}
+
+void back() {
+    idx = back_pt;
+    token = prog[idx];    
 }
 
 double logical_expr() {
@@ -503,7 +557,7 @@ double log_expr_factor() {
                 match('=');
                 temp = (temp == relational_expr());
             } else {
-                error(3);
+                error(3); /*Invalid comparison simbol*/
             }
             break;
         case '!':
@@ -512,7 +566,7 @@ double log_expr_factor() {
                 match('=');
                 temp = (temp != relational_expr());
             } else {
-                error(3);
+                error(3); /*Invalid comparison simbol*/
             }
     }
 
@@ -599,7 +653,7 @@ double factor() {
         temp = var[toupper(token) - 'A'];
         getusch();
     } else {
-        error(2);
+        error(2); /*Factor error*/
     }
 
     return temp;

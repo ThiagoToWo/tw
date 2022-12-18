@@ -1,23 +1,32 @@
 LINGUAGEM DE PROGRAMAÇÃO TW
 
-<programa> -> <decl_sequência>
+<programa> -> "{" <decl_sequência> "}"
 
-<decl_sequência> -> <declaração> {; <declaração>}
+<decl_sequência> -> <declaração> ";" {<declaração> ";"}
 
 <declaração> -> <decl_atribuição> | <decl_leitura> | <decl_escrita> |
-                <decl_condicional> | <ramificação> | <rotulo>
+                <decl_condicional> | <ramificação> | <subrotina> |
+                <rotulo> | <retorno>
 
-<decl_atribuição> -> <identificador> = <expr_lógica>
+<decl_atribuição> -> <identificador> "=" <expr_lógica>
 
-<decl_leitura> -> >> <identificador>
+<decl_leitura> -> ">>" <identificador>
 
-<decl_escrita> -> << <expr_lógica> | << "<texto>"
+<indentificador> -> LETRA
 
-<decl_condicional> -> ?<expr_lógica>? <ramificação>
+<decl_escrita> -> "<<" <expr_lógica> | "<<" <texto>
 
-<ramificação> -> -> <rótulo>
+<texto> -> "CADEIA"
 
-<rótulo> -> <número>
+<decl_condicional> -> "?"<expr_lógica>"?" <ramificação>
+
+<ramificação> -> "->" <rótulo>
+
+<subrotina> "sb" <rotulo>
+
+<rótulo> -> NÚMERO
+
+<retorno> -> "<-"
 
 <expr_lógica> -> <expr_log_termo> {<disjunção> <expr_log_termo>}
 
@@ -43,4 +52,4 @@ LINGUAGEM DE PROGRAMAÇÃO TW
 
 <mult> -> * | / | %
 
-<fator> -> (expr_lógica) | <identificador> | <numero>
+<fator> -> (expr_lógica) | <identificador> | NÚMERO
