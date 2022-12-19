@@ -25,6 +25,7 @@ void statement();
 void assign();
 void read();
 void write();
+void sintagma();
 void conditional();
 void branch();
 void subrotine();
@@ -289,7 +290,7 @@ void printProgram() {
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 1.5\n");
+        printf("tw\tversion: 1.6\n");
         printf("Use: .\\tw <file_name> [<options>]\n");
         printf("Options availables:\n");
         printf("\tc:\tprint program content text.\n");
@@ -361,6 +362,11 @@ void statement() {
             if (token == '>') {
                 match('>');
                 read();
+
+                while (token == ',') {
+                    match(',');
+                    read();
+                }
             } else {
                 error(5); /*Invalid command*/
             }
@@ -429,6 +435,15 @@ void read() {
 }
 
 void write() {
+    sintagma();
+
+    while (token == ',') {
+        match(',');
+        sintagma();
+    }
+}
+
+void sintagma() {
     double result;
 
     if (token == '\"') {

@@ -1,13 +1,15 @@
 #Programa que ilustra as estruturas de repeticoes
 #de verificacao antecipada (for e while)
 
-a = 1; #para o for existe variavel de controle a ser inicializada
+{
+    a = 1; #para o for existe variavel de controle a ser inicializada
 
-1; ?a >= 10? -> 2;  #teste antecipado em for e while    
-    << a;           #se a < 10, imprime a
-    a = a + 1;      #para o for existe o passo de incrementar a variavel de controle
-    ->1;            #retorna ao teste
-2;
+    1; ?a >= 10? -> 2;  #teste antecipado em for e while    
+        << a, "\n";     #se a < 10, imprime a
+        a = a + 1;      #para o for existe o passo de incrementar a variavel de controle
+        ->1;            #retorna ao teste
+    2;
 
-#continuacao do programa
-<< 497
+    #continuacao do programa
+    << 497;
+}

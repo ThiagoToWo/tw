@@ -10,11 +10,13 @@ LINGUAGEM DE PROGRAMAÇÃO TW
 
 <decl_atribuição> -> <identificador> "=" <expr_lógica>
 
-<decl_leitura> -> ">>" <identificador>
+<decl_leitura> -> ">>" <identificador> {, <identificador>}
 
 <indentificador> -> LETRA
 
-<decl_escrita> -> "<<" <expr_lógica> | "<<" <texto>
+<decl_escrita> -> "<<" <sintagma> {, <sintagma>}
+
+<sintagma> -> <expr_lógica> | <texto>
 
 <texto> -> "CADEIA"
 

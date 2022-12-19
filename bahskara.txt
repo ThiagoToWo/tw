@@ -1,0 +1,44 @@
+{
+	<< "Digite os coeficientes (a b c): ";
+	>> a, b, c;
+
+	?a == 0? -> 1;
+		d = b * b - 4 * a * c;
+
+		?d == 0? -> 3;
+		?d > 0? -> 4;
+			<< "nao possui raizes reais";
+			-> 5;
+		4;
+			#r = raiz(d)
+			e = d;
+			sb 100;
+
+			x = (-1 * b + r) / (2 * a);
+			y = (-1 * b - r) / (2 * a);
+			<< "x1 = ", x, "\n";
+			<< "x2 = ", y, "\n";
+			-> 5;
+		3;
+			x = -1 * b / (2 * a);
+			<< "x1 = x2 = ", x;
+		5;
+		-> 2;
+	1;
+		<< "nao eh uma funcao quadratica";
+	2;
+}
+
+#funcao raiz quadrada
+# r = raiz(e)
+# entrada em e
+# retorno em r
+100;
+i = 0;
+r = e / 2;
+1e-4;  
+    n = e / r;
+    r = (r + n) / 2;
+    i = i + 1;
+?i < 50? -> 1e-4;
+<-;

@@ -1,5 +1,6 @@
 #Programa para ilustrar o uso de if...else if
 
+{
 << "Digite um numero: ";
 >> a;
 
@@ -16,5 +17,5 @@
 3;
 
 #contuacao do programa
-<< "\n";
-<< 497
+<< "\n", 497;
+}

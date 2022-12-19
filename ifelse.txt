@@ -1,5 +1,6 @@
 #Programa para ilustrar os comandos if...else
 
+{
 << "Digite um numero: ";
 >> a;
 
@@ -9,9 +10,8 @@
 1;
     << "o numero eh maior que 5 ";
     << 1;        #se a > 5, então imprime 1 e a e continua o programa
-    << "\n";
-    << a;
+    << "\n", a;
 2;
 
-<<"\n";
-<< 497 #continuacao do programa
+<<"\n", 497; #continuacao do programa
+}

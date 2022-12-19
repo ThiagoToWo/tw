@@ -16,18 +16,18 @@
     sb 100;             #    f = fatorial(x);
     << f;               #    printf(f);
 }                       # }
-
+                        #
 100;                    # int fatorial(x) {
                         #    int f;
-?x <= 0? -> 1;          #    if (x > 0) {
+?x <= 0? -> 2;          #    if (x > 0) {
     f = 1;              #        f = 1;
     1;                  #        do {
         f = f * x;      #            f *= x;
         x = x - 1;      #            x--;
     ?x > 0? -> 1;       #        while (x > 0);  
-    -> 2;               #          
-1;                      #    else {
+    -> 3;               #          
+2;                      #    else {
     f = 1;              #        f = 1;
-2;                      #    }
+3;                      #    }
 <-;                     #    return f;                    
                         # }

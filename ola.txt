@@ -1,6 +1,5 @@
-<< "  ola, mundo  ";
-<< 497/9;
-<< "\a   ";
-<< "eh meu\n numero";
-<< "\n";
-<< "\ttchau?"
+{
+    << "  ola, mundo  ", 497/9;
+    << "\a   ";
+    << "eh meu\n numero", "\n", "\ttchau?";
+}

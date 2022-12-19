@@ -9,21 +9,21 @@
 #    
 #    n = n - 1
 #enquanto n > 0   
+{
+    << "Quantos numeros? ";
+    >> n;
+    << "Digite os numeros\n";
+    >> m;
 
-<< "Quantos numeros? ";
->> n;
-<< "Digite os numeros\n";
->> m;
+    1;
+        >> i;
 
-1;
-    >> i;
+        ?i > m == 0? -> 2;
+            m = i;      #se i > m, faz m = i
+        2;
 
-    ?i > m == 0? -> 2;
-        m = i;      #se i > m, faz m = i
-    2;
+        n = n - 1;
+    ?n > 1? -> 1;
 
-    n = n - 1;
-?n > 1? -> 1;
-
-<< "o maior eh ";
-<< m
+    << "o maior eh ", m;
+}

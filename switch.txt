@@ -1,5 +1,6 @@
 #Programa para exemplificar multiplas escolhas (switch)
 
+{
 << "Digite um numero: ";
 >> a;
 
@@ -7,24 +8,20 @@
 ?a == 2? -> 2;
 ?a == 3? -> 3;
 ?a == 4? -> 4;
-    << "voce clicou em >= 5 ou <= 0";   #caso default
-    << "\n"; -> 5;
+    << "voce clicou em >= 5 ou <= 0\n";   #caso default
+    -> 5;
 4;
-    << "voce clicou em ";
-    << 4;                       #se a = 4, imprime 4 e vai para (5)
-    << "\n"; -> 5;
+    << "voce clicou em 4\n";              #se a = 4, imprime 4 e vai para (5)                           
+    -> 5;
 3;
-    << "voce clicou em ";
-    << 3;                       #se a = 3, imprime 3 e vai para (5)
-    << "\n"; -> 5;
+    << "voce clicou em 3\n";              #se a = 3, imprime 3 e vai para (5)
+    -> 5;
 2;
-    << "voce clicou em ";
-    << 2;                       #se a = 2, imprime 2 e vai para (5)
-    << "\n"; -> 5;
+    << "voce clicou em 2\n";              #se a = 2, imprime 2 e vai para (5)
+    -> 5;
 1;
-    << "voce clicou em ";
-    << 1;                       #se a = 1, imprime 1 e continua o programa
-    << "\n";
+    << "voce clicou em 1\n";              #se a = 1, imprime 1 e continua o programa                    
 5;
 
-<< 497                          #continuacao do programa
+<< 497;                                   #continuacao do programa
+}

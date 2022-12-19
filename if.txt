@@ -1,5 +1,6 @@
 #Programa para ilustrar o comando if
 
+{
 << "Digite um numero: ";
 >> a;
 
@@ -11,6 +12,5 @@
 
 #continuacao do programa caso "a > 5" seja
 #verdadeiro ou falso
-<< a;
-<< "\n";
-<< 497   
+<< a, "\n", 497;   
+}
