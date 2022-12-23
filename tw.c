@@ -5,11 +5,12 @@
 
 #define PROGLEN 10000
 #define VARMAX  26
+#define VARLEN  1000000
 #define STRLEN  1000
 #define NUMLEN  100
 
 FILE* file; /*program file*/
-double var[VARMAX]; /*array of variables*/
+double var[VARMAX][VARLEN]; /*array of variables*/
 char token; /*current character in program*/
 int idx; /*current token index*/
 int back_pt; /*point at which the program loops back when return is called*/
@@ -48,7 +49,8 @@ void error(int e) {
         "Invalid variable name",           /*error(4)*/
         "Invalid command",                 /*error(5)*/
         "; expected",                      /*error(6)*/
-        "the program must start with {"    /*error(7)*/
+        "the program must start with {",   /*error(7)*/
+        "= expected"                       /*error(8)*/
     };
 
     printf("Snippet: ");
@@ -290,7 +292,7 @@ void printProgram() {
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 1.6\n");
+        printf("tw\tversion: 1.7\n");
         printf("Use: .\\tw <file_name> [<options>]\n");
         printf("Options availables:\n");
         printf("\tc:\tprint program content text.\n");
@@ -419,7 +421,30 @@ void assign() {
 
     if (token == '=') {
         match('=');
-        var[toupper(variable) - 'A'] = logical_expr();
+        int i = 0;
+        var[toupper(variable) - 'A'][i] = logical_expr();
+
+        while (token == ',') {
+            match(',');
+            var[toupper(variable) - 'A'][++i] = logical_expr();
+        }
+    } else if (token == '[') {
+        match('[');
+        double i = logical_expr();
+        match(']');
+
+        if (token == '=') {
+            match('=');
+            var[toupper(variable) - 'A'][(int) i] = logical_expr();
+
+            while (token == ',') {
+                match(',');
+                i++;
+                var[toupper(variable) - 'A'][(int) i] = logical_expr();
+            }
+        } else {
+            error(8);
+        }
     } else {
         error(4); /*Invalid variable name*/
     }
@@ -427,8 +452,16 @@ void assign() {
 
 void read() {
     if (isalpha(token)) {
-        scanf("%lf%*c", &var[toupper(token) - 'A']);
-        getusch();     
+        char variable = token;
+        getusch();
+
+        if (token == '[') {
+            match('[');
+            scanf("%lf%*c", &var[toupper(variable) - 'A'][(int) logical_expr()]);
+            match(']');
+        } else {
+            scanf("%lf%*c", &var[toupper(variable) - 'A'][0]);
+        }              
     } else {
         error(1); /*Unexpected token*/
     }
@@ -665,8 +698,15 @@ double factor() {
         scannum(&temp);
         getusch();
     } else if (isalpha(token)) {
-        temp = var[toupper(token) - 'A'];
+        char variable = token;
         getusch();
+        if (token == '[') {
+            match('[');
+            temp = var[toupper(variable) - 'A'][(int) logical_expr()];
+            match(']');
+        } else {
+            temp = var[toupper(variable) - 'A'][0];
+        } 
     } else {
         error(2); /*Factor error*/
     }
