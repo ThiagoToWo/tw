@@ -63,8 +63,8 @@ void error(int e) {
     exit(1);
 }
 
-void getusch() { /*get non space char*/
-    while (isspace(token = prog[++idx]));
+void getnext() { /*get non space char*/
+    token = prog[++idx];
 }
 
 void scannum(double* n) { /*get number from current token in prog*/
@@ -77,11 +77,11 @@ void scannum(double* n) { /*get number from current token in prog*/
             case 1:
                 if (token == '+' || token == '-') {
                     temp[i++] = token;
-                    token = prog[++idx];
+                    getnext();
                     state = 2;                    
                 } else if (isdigit(token)) {
                     temp[i++] = token;
-                    token = prog[++idx];
+                    getnext();
                     state = 3;                    
                 } else {
                     error(1); /*Unexpected token*/
@@ -90,7 +90,7 @@ void scannum(double* n) { /*get number from current token in prog*/
             case 2:
                 if (isdigit(token)) {
                     temp[i++] = token;
-                    token = prog[++idx];
+                    getnext();
                     state = 3;                    
                 } else {
                     error(1); /*Unexpected token*/
@@ -99,14 +99,14 @@ void scannum(double* n) { /*get number from current token in prog*/
             case 3:
                 if (isdigit(token)) {
                     temp[i++] = token;
-                    token = prog[++idx];                    
+                    getnext();                    
                 } else if (token == '.') {
                     temp[i++] = token;
-                    token = prog[++idx];
+                    getnext();
                     state = 4;                    
                 } else if (token == 'E' || token == 'e') {
                     temp[i++] = token;
-                    token = prog[++idx];
+                    getnext();
                     state = 6;                    
                 } else {
                     token = prog[--idx];                    
@@ -116,7 +116,7 @@ void scannum(double* n) { /*get number from current token in prog*/
             case 4:
                 if (isdigit(token)) {
                     temp[i++] = token;
-                    token = prog[++idx];
+                    getnext();
                     state = 5;                    
                 } else {
                     error(1); /*Unexpected token*/
@@ -125,10 +125,10 @@ void scannum(double* n) { /*get number from current token in prog*/
             case 5:
                 if (isdigit(token)) {
                     temp[i++] = token;
-                    token = prog[++idx];                                        
+                    getnext();                                        
                 } else if (token == 'E' || token == 'e') {
                     temp[i++] = token;
-                    token = prog[++idx];
+                    getnext();
                     state = 6;                    
                 } else {
                     token = prog[--idx];                    
@@ -138,11 +138,11 @@ void scannum(double* n) { /*get number from current token in prog*/
             case 6:
                 if (token == '+' || token == '-') {
                     temp[i++] = token;
-                    token = prog[++idx];
+                    getnext();
                     state = 7;                    
                 } else if (isdigit(token)) {
                     temp[i++] = token;
-                    token = prog[++idx];
+                    getnext();
                     state = 8;                    
                 } else {
                     error(1); /*Unexpected token*/
@@ -151,7 +151,7 @@ void scannum(double* n) { /*get number from current token in prog*/
             case 7:
                 if (isdigit(token)) {
                     temp[i++] = token;
-                    token = prog[++idx];
+                    getnext();
                     state = 8;                    
                 } else {
                     error(1); /*Unexpected token*/
@@ -160,7 +160,7 @@ void scannum(double* n) { /*get number from current token in prog*/
             case 8:
                 if (isalpha(token)) {
                     temp[i++] = token;
-                    token = prog[++idx];                    
+                    getnext();                    
                 } else {
                     token = prog[--idx];                    
                     state = 9;                    
@@ -175,7 +175,7 @@ void scannum(double* n) { /*get number from current token in prog*/
 
 void match(char expectedToken) {
     if (token == expectedToken) {
-        getusch();
+        getnext();
     } else {
         error(1); /*Unexpected token*/
     }
@@ -226,7 +226,7 @@ void markLabels() {
     double temp;
 
     if (token == '{') {
-        token = prog[++idx];
+        getnext();
     } else {
         error(7); /*the program must start with {*/
     }
@@ -237,13 +237,13 @@ void markLabels() {
     }
 
     while (prog[idx] != '\0') {
-        token = prog[++idx];
+        getnext();
 
         if (token == ';') {
-            token = prog[++idx];
+            getnext();
 
             if (token == '}') {
-                token = prog[++idx];
+                getnext();
             }
 
             if (isdigit(token)) {
@@ -292,7 +292,7 @@ void printProgram() {
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 1.7\n");
+        printf("tw\tversion: 1.7.1\n");
         printf("Use: .\\tw <file_name> [<options>]\n");
         printf("Options availables:\n");
         printf("\tc:\tprint program content text.\n");
@@ -417,7 +417,7 @@ void statement() {
 
 void assign() {
     char variable = token;
-    getusch();
+    getnext();
 
     if (token == '=') {
         match('=');
@@ -453,7 +453,7 @@ void assign() {
 void read() {
     if (isalpha(token)) {
         char variable = token;
-        getusch();
+        getnext();
 
         if (token == '[') {
             match('[');
@@ -480,12 +480,12 @@ void sintagma() {
     double result;
 
     if (token == '\"') {
-        token = prog[++idx];
+        getnext();
         
         int i = 0;
         while (token != '\"') {
             if (token == '\\') {
-                token = prog[++idx];
+                getnext();
 
                 switch (token) {
                     case 'a':
@@ -513,10 +513,10 @@ void sintagma() {
                 printf("%c", token);
             }
             
-            token = prog[++idx];            
+            getnext();            
         }
 
-        token = prog[++idx];      
+        getnext();      
     } else {
         result = logical_expr();
         printf("%g", result);
@@ -565,7 +565,7 @@ void subrotine() {
 void label() {
     double temp;
     scannum(&temp);
-    getusch();
+    getnext();
 }
 
 void back() {
@@ -696,10 +696,10 @@ double factor() {
         match(')'); 
     } else if (isdigit(token) || token == '+' || token == '-') {
         scannum(&temp);
-        getusch();
+        getnext();
     } else if (isalpha(token)) {
         char variable = token;
-        getusch();
+        getnext();
         if (token == '[') {
             match('[');
             temp = var[toupper(variable) - 'A'][(int) logical_expr()];

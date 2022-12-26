@@ -3,18 +3,18 @@
         << "x = ";
         >> x;
         ?x < 0? -> 2;
-        -> 100; #chama a subrotina 100
-        -> 200; #chama a subrotina 200
-        << "y = "; << y; << "\n"; 
-        << "z = "; << z; << "\n"; 
+        sb 100; #chama a subrotina 100
+        sb 200; #chama a subrotina 200
+        << "y = ", y, "\n"; 
+        << "z = ", z, "\n"; 
         -> 1;
     2;    
 }
 
 100;
 y = x * x - 5 * x + 6;
-<-; #retorno pro ";" após -> 100;
+<-; #retorno pro ";" após -> 100
 
 200;
 z = x * x + 4 * x - 3;
-<-; #retorno pro ";" após -> 200;
+<-; #retorno pro ";" após -> 200
