@@ -2,6 +2,7 @@
 #include <stdlib.h> // exit()
 #include <ctype.h> // isalpha(), isdigit(), isspace(), toupper()
 #include <string.h> // strcmp()
+#include <time.h> // clock()
 
 #define PROGLEN 10000
 #define VARMAX  26
@@ -19,6 +20,7 @@ int end; /*index at which the program ends*/
 char prog[PROGLEN]; /*optimized program string pointer*/
 char cont[PROGLEN]; /*program content text*/
 double labl[PROGLEN]; /*label characters and their values*/
+clock_t dt; /*the number of ticks since the execution starts*/
 
 void program();
 void statement_seq();
@@ -292,7 +294,7 @@ void printProgram() {
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 1.7.1\n");
+        printf("tw\tversion: 1.7.2\n");
         printf("Use: .\\tw <file_name> [<options>]\n");
         printf("Options availables:\n");
         printf("\tc:\tprint program content text.\n");
@@ -334,8 +336,11 @@ void main(int argc, char* argv[]) {
     token = prog[idx];
     program();
 
-    if (token == '}'){        
-        printf("\nFinish. Press a key to exit.");
+    if (token == '}'){  
+        dt = clock();        
+        printf("\nFinish.");
+        printf("\nTime: %g seconds.", (float) dt / CLOCKS_PER_SEC);
+        printf("\nPress a key to exit.");
         getchar();        
     }
 }
