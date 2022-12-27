@@ -1,89 +1,75 @@
 LINGUAGEM DE PROGRAMAÇÃO TW
 
 <programa> -> "{" <decl_sequência> "}"
-Ex.: {<< "Hello, world!";}
 
 <decl_sequência> -> <declaração> ";" {<declaração> ";"}
-Ex.: a = 4; b = 12; c = (a + b) / 2;
 
 <declaração> -> <decl_atribuição> | <decl_leitura> | <decl_escrita> |
                 <decl_condicional> | <ramificação> | <subrotina> |
                 <rotulo> | <retorno>
 
-<decl_atribuição> -> <identificador> "=" <expr_lógica> {"," <expr_lógica>}
-Ex.: a[2] = 1000;
-Ex.: a = 1, -3, 5, 4 * 3 - 7, s + 5, z * (a + b);
+<decl_atribuição> -> <atrib_numérica> | <atrib_cadeia>
 
-<decl_leitura> -> ">>" <identificador> {, <identificador>}
-Ex.: >> a, a[1], a[2], b, b[1], b[2];
+<atrib_numérica> -> <num_id> "=" <expr_lógica> {"," <expr_lógica>}
 
-<indentificador> -> LETRA | LETRA"["<expr_lógica>"]"
-Ex.: a
-Ex.: s[20]
-Ex.: a[i*8 + j]
+<atrib_cadeia> -> <str_id> "=" "CADEIA"
+
+<decl_leitura> -> ">>" <container> {, <container>}
+
+<container> -> <num_id> | <str_id>
 
 <decl_escrita> -> "<<" <sintagma> {, <sintagma>}
-Ex.: << (-1 * b + d) / (2 * a);
-Ex.: << "o valor da media eh ", m, " maior que a anterior\n";
 
-<sintagma> -> <expr_lógica> | <texto>
-Ex.: a + 1 >= b | "o ano eh bissexto\n"
+<sintagma> -> <expr_lógica> | <str_id> | "CADEIA"
 
-<texto> -> "CADEIA"
-Ex.: "ola, mundo!"
+<num_id> -> LETRA | LETRA"["<expr_lógica>"]"
+
+<str_id> -> "$"LETRA
 
 <decl_condicional> -> "?"<expr_lógica>"?" <ramificação>
-Ex.: ?a <= 3 & a > 0? - > 3;
 
 <ramificação> -> "->" <rótulo>
-Ex.: -> 400;
 
 <subrotina> "sb" <rotulo>
-Ex.: sb 497;
 
 <rótulo> -> NÚMERO
-Ex.: 2;
 
 <retorno> -> "<-"
-Ex.: <-;
 
 <expr_lógica> -> <expr_log_termo> {<disjunção> <expr_log_termo>}
-Ex.: a <= b | 2 * (a + 4) / 2 == b + 12 % 9 & a == b
+
+<str_lógica> -> <str_log_termo> {<disjunção> <str_log_termo>}
 
 <disjunção> -> |
 
 <expr_log_termo> -> <expr_log_fator> {<conjunção> <expr_log_fator>}
-Ex.: a <= b 
-Ex.: 2 * (a + 4) / 2 == b + 12 % 9 & a == b
+
+<str_log_termo> -> <str_log_fator> {<conjunção> <str_log_fator>}
 
 <conjunção> -> &
 
 <expr_log_fator> -> <expr_relacional> [<igualdade> <expr_relacional>]
-Ex.: 2 * (a + 4) / 2 == b + 12 % 9
-Ex.: a == b
+
+<str_log_fator> -> <str_relacional> [<igualdade> <str_relacional>]
 
 <igualdade> -> == | !=
 
 <expr_relacional> -> <expr_simples> [<desigualdade> <expr_simples>]
-Ex.: a <= b
-Ex.: 2 * (a + 4) / 2
-Ex.: b + 12 % 9
+
+<str_relacional> -> <str_simples> [<desigualdade> <str_simples>]
 
 <desigualdade> -> < | > | <= | >=
 
 <expr_simples> -> <termo> {<soma> <termo>}
-Ex.: 2 * x * x - 10 * x + 12
+
+<str_simples> -> <atomo> {+ <atomo>}
 
 <soma> -> + | -
 
 <termo> -> <fator> {<mult> <fator>}
-Ex.: 2 * x * x
-Ex.: - 10 * x
-Ex.: + 12
 
 <mult> -> * | / | %
 
-<fator> -> (expr_lógica) | <identificador> | NÚMERO
-Ex.: (a + b)
-Ex.: 2
-Ex.: x[3]
+<fator> -> (expr_lógica) | <num_id> | NÚMERO
+
+<atomo> -> (str_lógica) | <str_id> | "CADEIA"

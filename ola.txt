@@ -1,5 +1,5 @@
 {
     << "  ola, mundo  ", 497/9;
     << "\a   ";
-    << "eh meu\n numero", "\n", "\ttchau?";
+    << "eh meu\n numero", "\n", "\ttchau?";    
 }

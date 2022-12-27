@@ -1,17 +1,18 @@
 #include <stdio.h> // printf(), FILE, fopen(), fclose(), scanf()
 #include <stdlib.h> // exit()
 #include <ctype.h> // isalpha(), isdigit(), isspace(), toupper()
-#include <string.h> // strcmp()
+#include <string.h> // strcmp(), strcpy()
 #include <time.h> // clock()
 
 #define PROGLEN 10000
 #define VARMAX  26
 #define VARLEN  1000000
-#define STRLEN  1000
+#define STRLEN  1000000
 #define NUMLEN  100
 
 FILE* file; /*program file*/
-double var[VARMAX][VARLEN]; /*array of variables*/
+double var[VARMAX][VARLEN]; /*array of numerical variables*/
+char str[VARMAX][STRLEN]; /*array of string variables*/
 char token; /*current character in program*/
 int idx; /*current token index*/
 int back_pt; /*point at which the program loops back when return is called*/
@@ -26,9 +27,14 @@ void program();
 void statement_seq();
 void statement();
 void assign();
+void num_assign();
+void str_assign();
 void read();
+void container();
 void write();
 void sintagma();
+void num_id(char*);
+void str_id(char*);
 void conditional();
 void branch();
 void subrotine();
@@ -67,6 +73,14 @@ void error(int e) {
 
 void getnext() { /*get non space char*/
     token = prog[++idx];
+}
+
+void match(char expectedToken) {
+    if (token == expectedToken) {
+        getnext();
+    } else {
+        error(1); /*Unexpected token*/
+    }
 }
 
 void scannum(double* n) { /*get number from current token in prog*/
@@ -175,12 +189,45 @@ void scannum(double* n) { /*get number from current token in prog*/
     *n = atof(temp);
 }
 
-void match(char expectedToken) {
-    if (token == expectedToken) {
-        getnext();
-    } else {
-        error(1); /*Unexpected token*/
+void scanstr(char s[]) {
+    match('\"');
+        
+    int i = 0;
+    while (token != '\"') {
+        if (token == '\\') {
+            getnext();
+
+            switch (token) {
+                case 'a':
+                    s[i++] = '\a';
+                    break;
+                case 'b':
+                    s[i++] = '\b';
+                    break;
+                case 'f':
+                    s[i++] = '\f';
+                    break;
+                case 'n':
+                    s[i++] = '\n';
+                    break;
+                case 'r':
+                    s[i++] = '\r';
+                    break;
+                case 't':
+                    s[i++] = '\t';
+                    break;
+                case 'v':
+                    s[i++] = '\v';                   
+            }                
+        } else {
+            s[i++] = token;
+        }
+            
+        getnext();            
     }
+
+    s[i] = '\0';
+    match('\"');
 }
 
 void readFile() {
@@ -294,7 +341,7 @@ void printProgram() {
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 1.7.2\n");
+        printf("tw\tversion: 1.8\n");
         printf("Use: .\\tw <file_name> [<options>]\n");
         printf("Options availables:\n");
         printf("\tc:\tprint program content text.\n");
@@ -369,11 +416,6 @@ void statement() {
             if (token == '>') {
                 match('>');
                 read();
-
-                while (token == ',') {
-                    match(',');
-                    read();
-                }
             } else {
                 error(5); /*Invalid command*/
             }
@@ -413,7 +455,7 @@ void statement() {
             }
     }  
 
-    if (isalpha(token)) { /*assignment*/
+    if (isalpha(token) || token == '$') { /*assignment*/
         assign();
     } else if (isdigit(token)) { /*lable handle*/
         label();
@@ -421,8 +463,18 @@ void statement() {
 }
 
 void assign() {
-    char variable = token;
-    getnext();
+    if (isalpha(token)) {
+        num_assign();
+    } else if (token == '$') {
+        str_assign();
+    } else {
+        error(4); /*Invalid variable name*/
+    }
+}
+
+void num_assign() {
+    char variable;
+    num_id(&variable);
 
     if (token == '=') {
         match('=');
@@ -455,10 +507,35 @@ void assign() {
     }
 }
 
+void str_assign() {
+    char string[STRLEN];
+    char variable;
+    
+    str_id(&variable);
+    
+    if (token == '=') {
+        match('=');
+        scanstr(string);
+        strcpy(str[toupper(variable) - 'A'], string);
+    } else {
+        error(4); /*Invalid variable name*/
+    }
+}
+
 void read() {
-    if (isalpha(token)) {
-        char variable = token;
-        getnext();
+    container();
+
+    while (token == ',') {
+        match(',');
+        container();
+    }
+}
+
+void container() {
+    char variable;
+
+    if (isalpha(token)) {        
+        num_id(&variable);
 
         if (token == '[') {
             match('[');
@@ -466,9 +543,13 @@ void read() {
             match(']');
         } else {
             scanf("%lf%*c", &var[toupper(variable) - 'A'][0]);
-        }              
+        }
+    } else if (token == '$') {
+        str_id(&variable);
+
+        scanf("%s%*c", &str[toupper(variable) - 'A']);
     } else {
-        error(1); /*Unexpected token*/
+        error(4); /*Invalid variable name*/
     }
 }
 
@@ -483,49 +564,35 @@ void write() {
 
 void sintagma() {
     double result;
+    char string[STRLEN];
 
     if (token == '\"') {
-        getnext();
-        
-        int i = 0;
-        while (token != '\"') {
-            if (token == '\\') {
-                getnext();
-
-                switch (token) {
-                    case 'a':
-                        printf("\a");
-                        break;
-                    case 'b':
-                        printf("\b");
-                        break;
-                    case 'f':
-                        printf("\f");
-                        break;
-                    case 'n':
-                        printf("\n");
-                        break;
-                    case 'r':
-                        printf("\r");
-                        break;
-                    case 't':
-                        printf("\t");
-                        break;
-                    case 'v':
-                        printf("\v");                   
-                }                
-            } else {
-                printf("%c", token);
-            }
-            
-            getnext();            
-        }
-
-        getnext();      
+        scanstr(string);
+        printf("%s", string);
+    } else if (token == '$') {
+        char variable;
+        str_id(&variable);                
+        printf("%s", &str[toupper(variable) - 'A']);
     } else {
         result = logical_expr();
         printf("%g", result);
-    }    
+    }
+}
+
+void num_id(char* variable) {
+    *variable = token;
+    getnext();
+}
+
+void str_id(char* variable) {
+    match('$');
+
+    if (isalpha(token)) {
+        *variable = token;
+        getnext();
+    } else {
+        error(4); /*Invalid variable name*/
+    }
 }
 
 void conditional() {
