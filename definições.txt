@@ -8,6 +8,7 @@ LINGUAGEM DE PROGRAMAÇÃO TW
                 <decl_condicional> | <ramificação> | <subrotina> |
                 <rotulo> | <retorno>
 
+ENTRADA/SAÍDA:
 <decl_atribuição> -> <atrib_numérica> | <atrib_cadeia>
 
 <atrib_numérica> -> <num_id> "=" <expr_lógica> {"," <expr_lógica>}
@@ -24,8 +25,9 @@ LINGUAGEM DE PROGRAMAÇÃO TW
 
 <num_id> -> LETRA | LETRA"["<expr_lógica>"]"
 
-<str_id> -> "$"LETRA
+<str_id> -> "$"LETRA | LETRA"["<expr_lógica>"]"
 
+COMANDOS:
 <decl_condicional> -> "?"<expr_lógica>"?" <ramificação>
 
 <ramificação> -> "->" <rótulo>
@@ -36,6 +38,7 @@ LINGUAGEM DE PROGRAMAÇÃO TW
 
 <retorno> -> "<-"
 
+CÁLCULOS:
 <expr_lógica> -> <expr_log_termo> {<disjunção> <expr_log_termo>}
 
 <str_lógica> -> <str_log_termo> {<disjunção> <str_log_termo>}

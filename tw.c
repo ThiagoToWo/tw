@@ -33,8 +33,8 @@ void read();
 void container();
 void write();
 void sintagma();
-void num_id(char*);
-void str_id(char*);
+void num_id(char*, int*);
+void str_id(char*, int*);
 void conditional();
 void branch();
 void subrotine();
@@ -341,8 +341,8 @@ void printProgram() {
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 1.8\n");
-        printf("Use: .\\tw <file_name> [<options>]\n");
+        printf("tw\tversion: 1.9\n");
+        printf("Use: tw <file_name> [<options>]\n");
         printf("Options availables:\n");
         printf("\tc:\tprint program content text.\n");
         printf("\tp:\tprint program content optimized.\n");
@@ -474,16 +474,17 @@ void assign() {
 
 void num_assign() {
     char variable;
-    num_id(&variable);
+    int index;
+    num_id(&variable, &index);
 
     if (token == '=') {
         match('=');
         int i = 0;
-        var[toupper(variable) - 'A'][i] = logical_expr();
+        var[index][i] = logical_expr();
 
         while (token == ',') {
             match(',');
-            var[toupper(variable) - 'A'][++i] = logical_expr();
+            var[index][++i] = logical_expr();
         }
     } else if (token == '[') {
         match('[');
@@ -492,15 +493,15 @@ void num_assign() {
 
         if (token == '=') {
             match('=');
-            var[toupper(variable) - 'A'][(int) i] = logical_expr();
+            var[index][(int) i] = logical_expr();
 
             while (token == ',') {
                 match(',');
                 i++;
-                var[toupper(variable) - 'A'][(int) i] = logical_expr();
+                var[index][(int) i] = logical_expr();
             }
         } else {
-            error(8);
+            error(8); /*= expected*/
         }
     } else {
         error(4); /*Invalid variable name*/
@@ -510,13 +511,26 @@ void num_assign() {
 void str_assign() {
     char string[STRLEN];
     char variable;
+    int index;
     
-    str_id(&variable);
+    str_id(&variable, &index);
     
     if (token == '=') {
         match('=');
         scanstr(string);
-        strcpy(str[toupper(variable) - 'A'], string);
+        strcpy(str[index], string);        
+    } else if (token == '[') {
+        match('[');
+        double i = logical_expr();
+        match(']');
+
+        if (token == '=') {
+            match('=');
+            scanstr(string);
+            str[index][(int) i] = string[0];
+        } else {
+            error(8); /*= expected*/
+        }
     } else {
         error(4); /*Invalid variable name*/
     }
@@ -533,21 +547,32 @@ void read() {
 
 void container() {
     char variable;
+    int index;
 
     if (isalpha(token)) {        
-        num_id(&variable);
+        num_id(&variable, &index);
 
         if (token == '[') {
             match('[');
-            scanf("%lf%*c", &var[toupper(variable) - 'A'][(int) logical_expr()]);
+            double i = logical_expr();
             match(']');
+
+            scanf("%lf%*c", &var[index][(int) i]);
         } else {
-            scanf("%lf%*c", &var[toupper(variable) - 'A'][0]);
+            scanf("%lf%*c", &var[index][0]);
         }
     } else if (token == '$') {
-        str_id(&variable);
+        str_id(&variable, &index);
 
-        scanf("%s%*c", &str[toupper(variable) - 'A']);
+        if (token == '[') {
+            match('[');
+            double i = logical_expr();
+            match(']');
+
+            str[index][(int) i] = getchar();
+        } else {
+            scanf("%s%*c", str[index]);
+        }        
     } else {
         error(4); /*Invalid variable name*/
     }
@@ -571,24 +596,36 @@ void sintagma() {
         printf("%s", string);
     } else if (token == '$') {
         char variable;
-        str_id(&variable);                
-        printf("%s", &str[toupper(variable) - 'A']);
+        int index;
+        str_id(&variable, &index);
+
+        if (token == '[') {
+            match('[');
+            double i = logical_expr();
+            match(']');
+
+            printf("%c", str[index][(int) i]);
+        } else {
+            printf("%s", str[index]);
+        }    
     } else {
         result = logical_expr();
         printf("%g", result);
     }
 }
 
-void num_id(char* variable) {
+void num_id(char* variable, int* index) {
     *variable = token;
+    *index = toupper(*variable) - 'A';
     getnext();
 }
 
-void str_id(char* variable) {
+void str_id(char* variable, int* index) {
     match('$');
 
     if (isalpha(token)) {
         *variable = token;
+        *index = toupper(*variable) - 'A';
         getnext();
     } else {
         error(4); /*Invalid variable name*/
@@ -770,14 +807,18 @@ double factor() {
         scannum(&temp);
         getnext();
     } else if (isalpha(token)) {
-        char variable = token;
-        getnext();
+        char variable;
+        int index;
+        num_id(&variable, &index);
+
         if (token == '[') {
             match('[');
-            temp = var[toupper(variable) - 'A'][(int) logical_expr()];
+            double i = logical_expr();
             match(']');
+
+            temp = var[index][(int) i];
         } else {
-            temp = var[toupper(variable) - 'A'][0];
+            temp = var[index][0];
         } 
     } else {
         error(2); /*Factor error*/
