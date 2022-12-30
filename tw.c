@@ -28,13 +28,12 @@ void statement_seq();
 void statement();
 void assign();
 void num_assign();
-void str_assign();
+void text_assign();
 void read();
 void container();
 void write();
 void sintagma();
-void num_id(char*, int*);
-void str_id(char*, int*);
+void id(char*, int*);
 void conditional();
 void branch();
 void subrotine();
@@ -58,7 +57,8 @@ void error(int e) {
         "Invalid command",                 /*error(5)*/
         "; expected",                      /*error(6)*/
         "the program must start with {",   /*error(7)*/
-        "= expected"                       /*error(8)*/
+        "= expected",                      /*error(8)*/
+        "[ character expected"             /*error(9)*/
     };
 
     printf("Snippet: ");
@@ -341,7 +341,7 @@ void printProgram() {
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 1.9\n");
+        printf("tw\tversion: 2.0\n");
         printf("Use: tw <file_name> [<options>]\n");
         printf("Options availables:\n");
         printf("\tc:\tprint program content text.\n");
@@ -385,7 +385,7 @@ void main(int argc, char* argv[]) {
 
     if (token == '}'){  
         dt = clock();        
-        printf("\nFinish.");
+        printf("\nFinished.");
         printf("\nTime: %g seconds.", (float) dt / CLOCKS_PER_SEC);
         printf("\nPress a key to exit.");
         getchar();        
@@ -466,7 +466,7 @@ void assign() {
     if (isalpha(token)) {
         num_assign();
     } else if (token == '$') {
-        str_assign();
+        text_assign();
     } else {
         error(4); /*Invalid variable name*/
     }
@@ -475,7 +475,7 @@ void assign() {
 void num_assign() {
     char variable;
     int index;
-    num_id(&variable, &index);
+    id(&variable, &index);
 
     if (token == '=') {
         match('=');
@@ -508,12 +508,13 @@ void num_assign() {
     }
 }
 
-void str_assign() {
+void text_assign() {
     char string[STRLEN];
     char variable;
     int index;
     
-    str_id(&variable, &index);
+    match('$');
+    id(&variable, &index);
     
     if (token == '=') {
         match('=');
@@ -526,8 +527,7 @@ void str_assign() {
 
         if (token == '=') {
             match('=');
-            scanstr(string);
-            str[index][(int) i] = string[0];
+            str[index][(int) i] = logical_expr();
         } else {
             error(8); /*= expected*/
         }
@@ -550,7 +550,7 @@ void container() {
     int index;
 
     if (isalpha(token)) {        
-        num_id(&variable, &index);
+        id(&variable, &index);
 
         if (token == '[') {
             match('[');
@@ -562,14 +562,17 @@ void container() {
             scanf("%lf%*c", &var[index][0]);
         }
     } else if (token == '$') {
-        str_id(&variable, &index);
+        match('$');
+        id(&variable, &index);
 
         if (token == '[') {
             match('[');
             double i = logical_expr();
             match(']');
-
-            str[index][(int) i] = getchar();
+            
+            char string[STRLEN];
+            scanf("%s", string);
+            str[index][(int) i] = string[0];
         } else {
             scanf("%s%*c", str[index]);
         }        
@@ -597,7 +600,8 @@ void sintagma() {
     } else if (token == '$') {
         char variable;
         int index;
-        str_id(&variable, &index);
+        match('$');
+        id(&variable, &index);
 
         if (token == '[') {
             match('[');
@@ -614,15 +618,7 @@ void sintagma() {
     }
 }
 
-void num_id(char* variable, int* index) {
-    *variable = token;
-    *index = toupper(*variable) - 'A';
-    getnext();
-}
-
-void str_id(char* variable, int* index) {
-    match('$');
-
+void id(char* variable, int* index) {
     if (isalpha(token)) {
         *variable = token;
         *index = toupper(*variable) - 'A';
@@ -798,6 +794,7 @@ double term() {
 
 double factor() {
     double temp;
+    char string[2];
 
     if (token == '(') {
         match('(');
@@ -809,7 +806,7 @@ double factor() {
     } else if (isalpha(token)) {
         char variable;
         int index;
-        num_id(&variable, &index);
+        id(&variable, &index);
 
         if (token == '[') {
             match('[');
@@ -819,6 +816,24 @@ double factor() {
             temp = var[index][(int) i];
         } else {
             temp = var[index][0];
+        } 
+    } else if (token == '\"') {
+        scanstr(string);
+        temp = string[0];
+    } else if (token == '$') {
+        match('$');
+        char variable;
+        int index;
+        id(&variable, &index);
+
+        if (token == '[') {
+            match('[');
+            double i = logical_expr();
+            match(']');
+
+            temp = str[index][(int) i];
+        } else {
+            temp = str[index][0];
         } 
     } else {
         error(2); /*Factor error*/

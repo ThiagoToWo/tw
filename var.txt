@@ -16,6 +16,6 @@
     << $a, $b, $c, "\n";
 
     << "num text num text = ";
-    >> d, $d, e, $e;    
-    << d, $d, e, $e;
+    >> d, $d[0], e, $e;    
+    << d, $d[0], e, $e;
 }

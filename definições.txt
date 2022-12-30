@@ -9,63 +9,85 @@ LINGUAGEM DE PROGRAMAÇÃO TW
                 <rotulo> | <retorno>
 
 ENTRADA/SAÍDA:
-<decl_atribuição> -> <atrib_numérica> | <atrib_cadeia>
+<decl_atribuição> -> <atrib_numérica> | <atrib_texto>
 
-<atrib_numérica> -> <num_id> "=" <expr_lógica> {"," <expr_lógica>}
+<atrib_numérica> -> <id> "=" <expr_lógica> {"," <expr_lógica>} |
+                    <id>"["<expr_lógica>"]" "=" <expr_lógica> {"," <expr_lógica>}
+    Ex.: a = 1, 2, 3, 4
+    Ex.: b = 2 + r, 3 * (2 + 7), a > b          (cada expressão é calculada e o resultado atribuído)
+    Ex.: b[10] = 10, 20, 30, 40,
+    Ex.: c[3] =  a - 2 < c & a == 4, 10e5, 108  (cada expressão é calculada e o resultado atribuído)
+    Ex.: m[i * 8 + j] = 32
 
-<atrib_cadeia> -> <str_id> "=" "CADEIA"
+<atrib_texto> -> "$"<id> "=" "CADEIA" | "$"<id>"["<expr_lógica>"]" "=" <expr_lógica>
+    Ex.: $n = "Thiago de Oliveira Alves"
+    Ex.: $a[0] = "x"
+    Ex.: $c[4] = 72 - 65 + 91   (será interpretado como 'b', o caractere ASCII de número 98)
+    Ex.: $b[10] = "Amor"        (apenas o primeiro caractere 'A' será atribuído)
 
 <decl_leitura> -> ">>" <container> {, <container>}
 
-<container> -> <num_id> | <str_id>
+<container> -> <id> | <id>"["<expr_lógica>"]" | 
+               "$"<id> | "$"<id>"["<expr_lógica>"]"
+    Ex.: >> x       (lê um valor numérico e atribui a x)
+    Ex.: >> a[5]    (lê um valor numérico e atribui a a[5])
+    Ex.: >> $s      (atribui todos os caracteres do buffer de leitura)
+    Ex.: >> $t[2]   (atribui apenas o primeiro caractere e descarta o resto do buffer de leitura)
+    Ex.: >> a, a[1], $a, $a[1]
 
 <decl_escrita> -> "<<" <sintagma> {, <sintagma>}
 
-<sintagma> -> <expr_lógica> | <str_id> | "CADEIA"
+<sintagma> -> "CADEIA" | "$"<id> | "$"<id>"["<expr_lógica>"]" | <expr_lógica>
+    Ex.: << "Olá, mundo!"
+    Ex.: << $t
+    Ex.: << $t[20 * i + j]
+    Ex.: << b * b - 4 * a * c >= 0
+    Ex.: << a[0], " ", a[1], " ", a[2], "\n"
+    Ex.: << "x1 = x2 = ", (-1 * b) / (2 * a), "\n";
+    Obs.: expressões que envolvam caracteres só serão impressas se o primeiro termo não começar com " ou $.
+        Ex.: << "a" + 61 (NÃO FUNCIONA!)
+        Ex.: << $t - 12 (NÃO FUNCIONA!)
+        EX.: << 61 + "a" (imprime o valor de 61 + 97 = 158, pois 97 é o valor do caractere 'a' na tabela ASCII)
+        Ex.: << -12 + $t; (imprime a soma entre -12 e o valor ASCII do primeiro caractere do string guardado em $t)
 
-<num_id> -> LETRA | LETRA"["<expr_lógica>"]"
-
-<str_id> -> "$"LETRA | LETRA"["<expr_lógica>"]"
+<id> -> LETRA
+    Ex.: a ou A, b ou B, ..., z ou Z. Não é case sensitive.
 
 COMANDOS:
 <decl_condicional> -> "?"<expr_lógica>"?" <ramificação>
+    Ex.: ?d == 4? -> 1
+    Ex.: ?c - 1 >= 12 | $m[l * 12 + (c - 1)] != "."? -> 400
 
 <ramificação> -> "->" <rótulo>
+    Ex.: -> 2
+    Ex.: -> 1e-4
 
 <subrotina> "sb" <rotulo>
+    Ex.: sb 838182 
 
 <rótulo> -> NÚMERO
-
+    Ex.: 10 ou 23.89 ou 12.8E3, etc.
+    
 <retorno> -> "<-"
 
 CÁLCULOS:
 <expr_lógica> -> <expr_log_termo> {<disjunção> <expr_log_termo>}
 
-<str_lógica> -> <str_log_termo> {<disjunção> <str_log_termo>}
-
 <disjunção> -> |
 
 <expr_log_termo> -> <expr_log_fator> {<conjunção> <expr_log_fator>}
-
-<str_log_termo> -> <str_log_fator> {<conjunção> <str_log_fator>}
 
 <conjunção> -> &
 
 <expr_log_fator> -> <expr_relacional> [<igualdade> <expr_relacional>]
 
-<str_log_fator> -> <str_relacional> [<igualdade> <str_relacional>]
-
 <igualdade> -> == | !=
 
 <expr_relacional> -> <expr_simples> [<desigualdade> <expr_simples>]
 
-<str_relacional> -> <str_simples> [<desigualdade> <str_simples>]
-
 <desigualdade> -> < | > | <= | >=
 
 <expr_simples> -> <termo> {<soma> <termo>}
-
-<str_simples> -> <atomo> {+ <atomo>}
 
 <soma> -> + | -
 
@@ -73,6 +95,5 @@ CÁLCULOS:
 
 <mult> -> * | / | %
 
-<fator> -> (expr_lógica) | <num_id> | NÚMERO
-
-<atomo> -> (str_lógica) | <str_id> | "CADEIA"
+<fator> -> (<expr_lógica>) | NÚMERO | <id> | <id>"["<expr_lógica>"]" |
+           "LETRA" | "$"<id> | "$"<id>"["<expr_lógica>"]"

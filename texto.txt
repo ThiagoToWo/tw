@@ -1,6 +1,21 @@
 {
     $a = "eu te amo";
+    << $a, "\n";
+    $t = "Amor";
 
+    # deixa maiuscula
+    l = 0;
+    10; ?l >= 9? -> 20;
+        ?$a[l] == " "? -> 30;
+            $a[l] = $a[l] - "amor" + $t;
+        30;
+        l = l + 1;
+        -> 10;
+    20;
+
+    << $a, "\n";
+
+    #imprime o inverso
     l = 0;
     1; ?l >= 9? -> 2;
         << $a[8 - l];
