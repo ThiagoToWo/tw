@@ -1,21 +1,26 @@
 {
     $a = "eu te amo";
-    << $a, "\n";
-    $t = "Amor";
 
-    # deixa maiuscula
+    # imprime $a e pula linha
+    << $a, "\n";
+
+    # deixa o texto de $a em maiuscula
     l = 0;
     10; ?l >= 9? -> 20;
         ?$a[l] == " "? -> 30;
-            $a[l] = $a[l] - "amor" + $t;
+            #opera sobre o codigo ASCII para substituir
+            #cada caractere diferente de espaco
+            #pela sua versao maiuscula
+            $a[l] = $a[l] - "a" + "A";
         30;
         l = l + 1;
         -> 10;
     20;
 
+    # imprime $a, agora em maiusculas, e pula linha
     << $a, "\n";
 
-    #imprime o inverso
+    #imprime o inverso de $a
     l = 0;
     1; ?l >= 9? -> 2;
         << $a[8 - l];

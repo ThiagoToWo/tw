@@ -51,7 +51,7 @@ void error(int e) {
     static char* errors[] = {
         "Error",                           /*error(0)*/
         "Unexpected token",                /*error(1)*/
-        "Factor error",                    /*error(2)*/
+        "Not a valid expression",          /*error(2)*/
         "Invalid comparison simbol",       /*error(3)*/
         "Invalid variable name",           /*error(4)*/
         "Invalid command",                 /*error(5)*/
@@ -341,7 +341,7 @@ void printProgram() {
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 2.0\n");
+        printf("tw\tversion: 2.0.1\n");
         printf("Use: tw <file_name> [<options>]\n");
         printf("Options availables:\n");
         printf("\tc:\tprint program content text.\n");
@@ -595,23 +595,42 @@ void sintagma() {
     char string[STRLEN];
 
     if (token == '\"') {
-        scanstr(string);
-        printf("%s", string);
+        int i = 1;
+        while (prog[idx + i] != '\"') i++;
+
+        if (prog[idx + i + 1] == ';' || prog[idx + i + 1] == ',') {
+            scanstr(string);
+            printf("%s", string);
+        } else {
+            result = logical_expr();
+            printf("%g", result);
+        }        
     } else if (token == '$') {
         char variable;
         int index;
-        match('$');
-        id(&variable, &index);
 
-        if (token == '[') {
-            match('[');
-            double i = logical_expr();
-            match(']');
-
-            printf("%c", str[index][(int) i]);
-        } else {
+        if (prog[idx + 2] == ';' || prog[idx + 2] == ',') {            
+            match('$');
+            id(&variable, &index);
             printf("%s", str[index]);
-        }    
+        } else if (prog[idx + 2] == '[') {
+            int i = 3;
+            while (prog[idx + i] != ']') i++;
+            
+            if (prog[idx + i + 1] == ';' || prog[idx + i + 1] == ',') {                
+                match('$');
+                id(&variable, &index);
+
+                match('[');
+                double i = logical_expr();
+                match(']');
+
+                printf("%c", str[index][(int) i]);
+            } else {
+                result = logical_expr();
+                printf("%g", result);
+            }
+        }
     } else {
         result = logical_expr();
         printf("%g", result);
@@ -836,7 +855,7 @@ double factor() {
             temp = str[index][0];
         } 
     } else {
-        error(2); /*Factor error*/
+        error(2); /*Not a valid expression*/
     }
 
     return temp;

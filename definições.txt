@@ -44,11 +44,10 @@ ENTRADA/SAÍDA:
     Ex.: << b * b - 4 * a * c >= 0
     Ex.: << a[0], " ", a[1], " ", a[2], "\n"
     Ex.: << "x1 = x2 = ", (-1 * b) / (2 * a), "\n";
-    Obs.: expressões que envolvam caracteres só serão impressas se o primeiro termo não começar com " ou $.
-        Ex.: << "a" + 61 (NÃO FUNCIONA!)
-        Ex.: << $t - 12 (NÃO FUNCIONA!)
-        EX.: << 61 + "a" (imprime o valor de 61 + 97 = 158, pois 97 é o valor do caractere 'a' na tabela ASCII)
-        Ex.: << -12 + $t; (imprime a soma entre -12 e o valor ASCII do primeiro caractere do string guardado em $t)
+    Obs.: expressões que envolvam caracteres só serão impressas diretamente na forma numérica.
+        Ex.: << "a" + 61 (imprime 97 + 61 = 158, pois pois 97 é o valor do caractere 'a' na tabela ASCII)
+        Ex.: << $t - 12 (imprime a subtração do valor ASCII do primeiro caractere de $t com 12)
+        Ex.: << "Amor" * 2 (imprime 65 * 2 = 130, pois 65 é o valor ASCII de 'A', primeiro caractere de "Amor")
 
 <id> -> LETRA
     Ex.: a ou A, b ou B, ..., z ou Z. Não é case sensitive.
