@@ -3,8 +3,8 @@
         << "x = ";
         >> x;
         ?x < 0? -> 2;
-        sb 100; #chama a subrotina 100
-        sb 200; #chama a subrotina 200
+        => 100; #chama a subrotina 100
+        => 200; #chama a subrotina 200
         << "y = ", y, "\n"; 
         << "z = ", z, "\n"; 
         -> 1;

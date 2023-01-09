@@ -61,7 +61,7 @@ COMANDOS:
     Ex.: -> 2
     Ex.: -> 1e-4
 
-<subrotina> "sb" <rotulo>
+<subrotina> "=>" <rotulo>
     Ex.: sb 838182 
 
 <rótulo> -> NÚMERO

@@ -13,7 +13,7 @@
                         #    int x, f;
     << "Fatorial de ";  #    printf("Fatorial de ");
     >> x;               #    scanf("%d, &x);
-    sb 100;             #    f = fatorial(x);
+    => 100;             #    f = fatorial(x);
     << f;               #    printf(f);
 }                       # }
                         #

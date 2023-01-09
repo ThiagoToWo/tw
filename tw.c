@@ -174,7 +174,7 @@ void scannum(double* n) { /*get number from current token in prog*/
                 } 
                 break;
             case 8:
-                if (isalpha(token)) {
+                if (isdigit(token)) {
                     temp[i++] = token;
                     getnext();                    
                 } else {
@@ -341,7 +341,7 @@ void printProgram() {
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 2.0.1\n");
+        printf("tw\tversion: 2.1\n");
         printf("Use: tw <file_name> [<options>]\n");
         printf("Options availables:\n");
         printf("\tc:\tprint program content text.\n");
@@ -445,10 +445,10 @@ void statement() {
                 error(5); /*Invalid command*/
             }
             break;        
-        case 's': /*subrotine*/
-            match('s');
-            if (token == 'b') {
-                match('b');
+        case '=': /*subrotine*/            
+            match('=');
+            if (token == '>') {
+                match('>');
                 subrotine();
             } else {
                 error(5); /*Invalid command*/
