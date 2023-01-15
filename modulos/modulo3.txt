@@ -1,0 +1,2 @@
+<< a, " ", b, " ", c;
+@modulos/modulo4.txt

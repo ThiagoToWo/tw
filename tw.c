@@ -1,16 +1,16 @@
-#include <stdio.h> // printf(), FILE, fopen(), fclose(), scanf()
+#include <stdio.h> // printf(), FILE, fopen(), fclose(), fgetc(), scanf()
 #include <stdlib.h> // exit()
 #include <ctype.h> // isalpha(), isdigit(), isspace(), toupper()
 #include <string.h> // strcmp(), strcpy()
 #include <time.h> // clock()
 
-#define PROGLEN 10000
-#define VARMAX  26
-#define VARLEN  1000000
-#define STRLEN  1000000
-#define NUMLEN  100
+#define PROGLEN     10000
+#define VARMAX      26
+#define VARLEN      1000000
+#define STRLEN      1000000
+#define NUMLEN      100
+#define FNAMELEN    100
 
-FILE* file; /*program file*/
 double var[VARMAX][VARLEN]; /*array of numerical variables*/
 char str[VARMAX][STRLEN]; /*array of string variables*/
 char token; /*current character in program*/
@@ -230,11 +230,37 @@ void scanstr(char s[]) {
     match('\"');
 }
 
-void readFile() {
-    int i = 0;
+/*
+* PRE-CONDITION: idx = 0;
+* POST-CONDITION: 
+*   idx = index od the last character
+*/
+void readFile(char file_name[]) {
+    FILE* file;    
 
-    while ((cont[i] = fgetc(file)) != EOF) i++;
-    cont[i] = '\0';
+    if (!(file = fopen(file_name, "r"))) {
+        printf("Error openning %s\n", file_name);
+        exit(1);
+    }
+
+    while ((cont[idx] = fgetc(file)) != EOF) {
+        if (cont[idx] == EOF) {
+            idx--;
+            fclose(file);
+        } else if (cont[idx] == '@') {
+            char fn[FNAMELEN];
+            int j = 0;
+            while ((fn[j] = fgetc(file)) != '\n' && fn[j] != EOF) j++;
+            
+            fn[j] = '\0';
+
+            readFile(fn);
+        } else {
+            idx++;
+        }
+    }
+
+    cont[idx] = '\0';
 }
 
 void optimize() {
@@ -341,8 +367,8 @@ void printProgram() {
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 2.1\n");
-        printf("Use: tw <file_name> [<options>]\n");
+        printf("tw\tversion: 2.2\n");
+        printf("Use: tw <file_path> [<options>]\n");
         printf("Options availables:\n");
         printf("\tc:\tprint program content text.\n");
         printf("\tp:\tprint program content optimized.\n");
@@ -350,14 +376,8 @@ void main(int argc, char* argv[]) {
         exit(1);
     }
 
-    if (!(file = fopen(argv[1], "r"))) {
-        printf("Error openning file.\n");
-        exit(1);
-    }   
-
-    readFile();
-    fclose(file);
-
+    idx = 0;
+    readFile(argv[1]);
     optimize();
     idx = 0;
     token = prog[idx];

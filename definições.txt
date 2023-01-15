@@ -96,3 +96,7 @@ CÁLCULOS:
 
 <fator> -> (<expr_lógica>) | NÚMERO | <id> | <id>"["<expr_lógica>"]" |
            "LETRA" | "$"<id> | "$"<id>"["<expr_lógica>"]"
+
+MARCAÇÔES:
+<comentários> -> "#"<texto do comentário><quebra-de-linha>
+<inclusão> -> "#"<caminho do arquivo><quebra-de-linha>
