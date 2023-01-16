@@ -7,7 +7,7 @@
 #define PROGLEN     10000
 #define VARMAX      26
 #define VARLEN      1000000
-#define STRLEN      1000000
+#define STRLEN      100000
 #define NUMLEN      100
 #define FNAMELEN    100
 
@@ -49,16 +49,20 @@ double factor();
 
 void error(int e) {
     static char* errors[] = {
-        "Error",                           /*error(0)*/
-        "Unexpected token",                /*error(1)*/
-        "Not a valid expression",          /*error(2)*/
-        "Invalid comparison simbol",       /*error(3)*/
-        "Invalid variable name",           /*error(4)*/
-        "Invalid command",                 /*error(5)*/
-        "; expected",                      /*error(6)*/
-        "the program must start with {",   /*error(7)*/
-        "= expected",                      /*error(8)*/
-        "[ character expected"             /*error(9)*/
+        "Error",                                    /*error(0)*/
+        "Unexpected token",                         /*error(1)*/
+        "Not a valid expression",                   /*error(2)*/
+        "Invalid comparison simbol",                /*error(3)*/
+        "Invalid variable name",                    /*error(4)*/
+        "Invalid command",                          /*error(5)*/
+        "; expected",                               /*error(6)*/
+        "the program must start with {",            /*error(7)*/
+        "= expected",                               /*error(8)*/
+        "[ character expected",                     /*error(9)*/
+        "Division by zero",                         /*error(10)*/
+        "the number has more than 100 digits",      /*error(11)*/
+        "the string has more than 100000 chars",    /*error(12)*/
+        "the array is out of bounds"                /*error(13)*/
     };
 
     printf("Snippet: ");
@@ -88,7 +92,7 @@ void scannum(double* n) { /*get number from current token in prog*/
     int i = 0;
     int state = 1;
     
-    while (state != 9) {
+    while (state != 9 && i < NUMLEN - 1) {
         switch (state) {
             case 1:
                 if (token == '+' || token == '-') {
@@ -184,6 +188,8 @@ void scannum(double* n) { /*get number from current token in prog*/
         }
     }
 
+    if (i == NUMLEN - 1) error(11); /*number has more than 100 digits*/
+
     temp[i] = '\0';
 
     *n = atof(temp);
@@ -193,7 +199,7 @@ void scanstr(char s[]) {
     match('\"');
         
     int i = 0;
-    while (token != '\"') {
+    while (token != '\"' && i < STRLEN - 1) {
         if (token == '\\') {
             getnext();
 
@@ -226,6 +232,9 @@ void scanstr(char s[]) {
         getnext();            
     }
 
+
+    if (i == STRLEN - 1) error(12); /*the string has more than 100000 characters*/
+
     s[i] = '\0';
     match('\"');
 }
@@ -243,20 +252,38 @@ void readFile(char file_name[]) {
         exit(1);
     }
 
-    while ((cont[idx] = fgetc(file)) != EOF) {
+    int INSTRING = 0;
+    while (idx < PROGLEN - 1 && (cont[idx] = fgetc(file)) != EOF) {
         if (cont[idx] == EOF) {
             idx--;
             fclose(file);
-        } else if (cont[idx] == '@') {
+        } if (cont[idx] == '\"') {
+            if (INSTRING == 0) {
+                INSTRING = 1;
+            } else {
+                INSTRING = 0;
+            }
+
+            idx++;
+        } else if (cont[idx] == '@' && !INSTRING) {
             char fn[FNAMELEN];
             int j = 0;
-            while ((fn[j] = fgetc(file)) != '\n' && fn[j] != EOF) j++;
+            while (j < FNAMELEN - 1 && (fn[j] = fgetc(file)) != '\n' && fn[j] != EOF) j++;
             
+            if (j == FNAMELEN - 1) {
+                printf("Read error: file name has more than 100 characters.\n");
+                exit(1);
+            }
             fn[j] = '\0';
 
             readFile(fn);
         } else {
             idx++;
+        }
+
+        if (idx == PROGLEN - 1) {
+            printf("Read error: file has more than 10000 characters.\n");
+            exit(1);
         }
     }
 
@@ -367,7 +394,7 @@ void printProgram() {
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 2.2\n");
+        printf("tw\tversion: 2.2.1\n");
         printf("Use: tw <file_path> [<options>]\n");
         printf("Options availables:\n");
         printf("\tc:\tprint program content text.\n");
@@ -502,24 +529,29 @@ void num_assign() {
         int i = 0;
         var[index][i] = logical_expr();
 
-        while (token == ',') {
+        while (token == ',' && i <= VARLEN) {
             match(',');
             var[index][++i] = logical_expr();
         }
+
+        if (i > VARLEN) error(13); /*the array is out of bounds*/
     } else if (token == '[') {
         match('[');
         double i = logical_expr();
+        if (i > VARLEN) error(13); /*the array is out of bounds*/
         match(']');
 
         if (token == '=') {
             match('=');
             var[index][(int) i] = logical_expr();
 
-            while (token == ',') {
+            while (token == ',' && i <= VARLEN) {
                 match(',');
                 i++;
                 var[index][(int) i] = logical_expr();
             }
+
+            if (i > VARLEN) error(13); /*the array is out of bounds*/
         } else {
             error(8); /*= expected*/
         }
@@ -575,6 +607,7 @@ void container() {
         if (token == '[') {
             match('[');
             double i = logical_expr();
+            if (i > VARLEN) error(13); /*the array is out of bounds*/
             match(']');
 
             scanf("%lf%*c", &var[index][(int) i]);
@@ -588,6 +621,7 @@ void container() {
         if (token == '[') {
             match('[');
             double i = logical_expr();
+            if (i > STRLEN - 1) error(13); /*the array is out of bounds*/
             match(']');
             
             char string[STRLEN];
@@ -643,6 +677,7 @@ void sintagma() {
 
                 match('[');
                 double i = logical_expr();
+                if (i > STRLEN - 1) error(13); /*the array is out of bounds*/
                 match(']');
 
                 printf("%c", str[index][(int) i]);
@@ -811,6 +846,7 @@ double simple_expr() {
 
 double term() {
     double temp = factor();
+    double divisor;
 
     while (token == '*' || token == '/' || token == '%') {
         switch (token) {
@@ -820,11 +856,15 @@ double term() {
                 break;
             case '/':
                 match('/');
-                temp /= factor();
+                divisor = factor();
+                if (divisor == 0) error(10); /*Division by zero*/
+                temp /= divisor;
                 break;
             case '%':
                 match('%');
-                temp = (int) temp % (int) factor();
+                divisor = factor();
+                if (divisor == 0) error(10); /*Division by zero*/
+                temp = (int) temp % (int) divisor;
         }       
     }
 
