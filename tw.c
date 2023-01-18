@@ -394,7 +394,7 @@ void printProgram() {
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 2.2.1\n");
+        printf("tw\tversion: 2.2.2\n");
         printf("Use: tw <file_path> [<options>]\n");
         printf("Options availables:\n");
         printf("\tc:\tprint program content text.\n");
@@ -657,7 +657,7 @@ void sintagma() {
             printf("%s", string);
         } else {
             result = logical_expr();
-            printf("%g", result);
+            printf("%.15g", result);
         }        
     } else if (token == '$') {
         char variable;
@@ -683,12 +683,12 @@ void sintagma() {
                 printf("%c", str[index][(int) i]);
             } else {
                 result = logical_expr();
-                printf("%g", result);
+                printf("%.15g", result);
             }
         }
     } else {
         result = logical_expr();
-        printf("%g", result);
+        printf("%.15g", result);
     }
 }
 
