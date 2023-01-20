@@ -3,12 +3,12 @@
 #include <ctype.h> // isalpha(), isdigit(), isspace(), toupper()
 #include <string.h> // strcmp(), strcpy()
 #include <time.h> // clock()
+#include <math.h> // pow()
 
 #define PROGLEN     10000
 #define VARMAX      26
 #define VARLEN      1000000
 #define STRLEN      100000
-#define NUMLEN      100
 #define FNAMELEN    100
 
 double var[VARMAX][VARLEN]; /*array of numerical variables*/
@@ -88,111 +88,47 @@ void match(char expectedToken) {
 }
 
 void scannum(double* n) { /*get number from current token in prog*/
-    char temp[NUMLEN];
-    int i = 0;
-    int state = 1;
-    
-    while (state != 9 && i < NUMLEN - 1) {
-        switch (state) {
-            case 1:
-                if (token == '+' || token == '-') {
-                    temp[i++] = token;
-                    getnext();
-                    state = 2;                    
-                } else if (isdigit(token)) {
-                    temp[i++] = token;
-                    getnext();
-                    state = 3;                    
-                } else {
-                    error(1); /*Unexpected token*/
-                }
-                break;
-            case 2:
-                if (isdigit(token)) {
-                    temp[i++] = token;
-                    getnext();
-                    state = 3;                    
-                } else {
-                    error(1); /*Unexpected token*/
-                } 
-                break;
-            case 3:
-                if (isdigit(token)) {
-                    temp[i++] = token;
-                    getnext();                    
-                } else if (token == '.') {
-                    temp[i++] = token;
-                    getnext();
-                    state = 4;                    
-                } else if (token == 'E' || token == 'e') {
-                    temp[i++] = token;
-                    getnext();
-                    state = 6;                    
-                } else {
-                    token = prog[--idx];                    
-                    state = 9;                    
-                }
-                break;
-            case 4:
-                if (isdigit(token)) {
-                    temp[i++] = token;
-                    getnext();
-                    state = 5;                    
-                } else {
-                    error(1); /*Unexpected token*/
-                }
-                break;
-            case 5:
-                if (isdigit(token)) {
-                    temp[i++] = token;
-                    getnext();                                        
-                } else if (token == 'E' || token == 'e') {
-                    temp[i++] = token;
-                    getnext();
-                    state = 6;                    
-                } else {
-                    token = prog[--idx];                    
-                    state = 9;                    
-                }
-                break;
-            case 6:
-                if (token == '+' || token == '-') {
-                    temp[i++] = token;
-                    getnext();
-                    state = 7;                    
-                } else if (isdigit(token)) {
-                    temp[i++] = token;
-                    getnext();
-                    state = 8;                    
-                } else {
-                    error(1); /*Unexpected token*/
-                }
-                break;
-            case 7:
-                if (isdigit(token)) {
-                    temp[i++] = token;
-                    getnext();
-                    state = 8;                    
-                } else {
-                    error(1); /*Unexpected token*/
-                } 
-                break;
-            case 8:
-                if (isdigit(token)) {
-                    temp[i++] = token;
-                    getnext();                    
-                } else {
-                    token = prog[--idx];                    
-                    state = 9;                    
-                }
+    double val;
+    double power = 1.0;
+    int signal;
+    int esignal;
+    int exp = 0.0;
+
+    signal = (prog[idx] == '-') ? -1 : 1;
+
+    if (prog[idx] == '+' || prog[idx] == '-') idx++;
+
+    for (val = 0.0; isdigit(prog[idx]); idx++) {
+        val = 10.0 * val + (prog[idx] - '0');
+    }
+
+    if (prog[idx] == '.') idx++;
+
+    for (power = 1.0; isdigit(prog[idx]); idx++) {
+        val = 10.0 * val + (prog[idx] - '0');
+        power *= 10.0;
+    }
+
+    if (prog[idx] == 'e' || prog[idx] == 'E') {
+        idx++;
+
+        esignal = (prog[idx] == '-') ? -1 : 1;
+
+        if (prog[idx] == '+' || prog[idx] == '-') idx++;
+
+        for (exp = 0; isdigit(prog[idx]); idx++) {
+            exp = 10 * exp + (prog[idx] - '0');
         }
     }
 
-    if (i == NUMLEN - 1) error(11); /*number has more than 100 digits*/
+    if (esignal > 0) {
+        *n = signal * (val / power) * pow(10, exp);
+    } else {
+        *n = signal * (val / power) / pow(10, exp);
+    }
 
-    temp[i] = '\0';
-
-    *n = atof(temp);
+    idx--;
+    token = prog[idx];
 }
 
 void scanstr(char s[]) {
@@ -333,7 +269,7 @@ void markLabels() {
         error(7); /*the program must start with {*/
     }
 
-    if (isdigit(token)) {
+    if (isdigit(token) || token == '+' || token == '-' || token == '.') {
         scannum(&temp);
         labl[idx] = temp;        
     }
@@ -348,7 +284,7 @@ void markLabels() {
                 getnext();
             }
 
-            if (isdigit(token)) {
+            if (isdigit(token) || token == '+' || token == '-' || token == '.') {
                 scannum(&temp);
                 labl[idx] = temp;
             }
@@ -394,7 +330,7 @@ void printProgram() {
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 2.2.2\n");
+        printf("tw\tversion: 2.2.3\n");
         printf("Use: tw <file_path> [<options>]\n");
         printf("Options availables:\n");
         printf("\tc:\tprint program content text.\n");
@@ -720,8 +656,10 @@ void branch() {
     double temp;
     int pos;
 
-    if (isdigit(token)) {
+    if (isdigit(token) || token == '+' || token == '-' || token == '.') {
         scannum(&temp);
+        getnext();
+        if (token != ';') error(6);
           
         for (pos = 0; pos < PROGLEN; pos++) {
             if (temp == labl[pos]) break;
@@ -879,7 +817,7 @@ double factor() {
         match('(');
         temp = logical_expr();
         match(')'); 
-    } else if (isdigit(token) || token == '+' || token == '-') {
+    } else if (isdigit(token) || token == '+' || token == '-' || token == '.') {
         scannum(&temp);
         getnext();
     } else if (isalpha(token)) {
