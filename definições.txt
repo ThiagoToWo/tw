@@ -64,8 +64,8 @@ COMANDOS:
 <subrotina> "=>" <rotulo>
     Ex.: sb 838182 
 
-<rótulo> -> NÚMERO
-    Ex.: 10 ou 23.89 ou -12.8E3, .50, etc.
+<rótulo> -> NÚMERO POSITIVO
+    Ex.: 10 ou 23.89 ou 12.8E3, .50, etc.
     
 <retorno> -> "<-"
 

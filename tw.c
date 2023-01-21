@@ -64,14 +64,11 @@ void error(int e) {
         "the string has more than 100000 chars",    /*error(12)*/
         "the array is out of bounds"                /*error(13)*/
     };
-
     printf("Snippet: ");
     for (int i = -5; i <= 5; i++)
         printf("%c", prog[idx + i]);
-
-    printf(". Current token: %c. ", token);
-    printf("%s\n", errors[e]);
-
+    printf(". Current token: %c. In idx = %d.", token, idx);
+    printf(" Error: %s.\n", errors[e]);
     exit(1);
 }
 
@@ -93,52 +90,38 @@ void scannum(double* n) { /*get number from current token in prog*/
     int signal;
     int esignal;
     int exp = 0.0;
-
     signal = (prog[idx] == '-') ? -1 : 1;
-
     if (prog[idx] == '+' || prog[idx] == '-') idx++;
-
     for (val = 0.0; isdigit(prog[idx]); idx++) {
         val = 10.0 * val + (prog[idx] - '0');
     }
-
     if (prog[idx] == '.') idx++;
-
     for (power = 1.0; isdigit(prog[idx]); idx++) {
         val = 10.0 * val + (prog[idx] - '0');
         power *= 10.0;
     }
-
     if (prog[idx] == 'e' || prog[idx] == 'E') {
         idx++;
-
         esignal = (prog[idx] == '-') ? -1 : 1;
-
         if (prog[idx] == '+' || prog[idx] == '-') idx++;
-
         for (exp = 0; isdigit(prog[idx]); idx++) {
             exp = 10 * exp + (prog[idx] - '0');
         }
     }
-
     if (esignal > 0) {
         *n = signal * (val / power) * pow(10, exp);
     } else {
         *n = signal * (val / power) / pow(10, exp);
     }
-
-    idx--;
     token = prog[idx];
 }
 
 void scanstr(char s[]) {
-    match('\"');
-        
+    match('\"');        
     int i = 0;
     while (token != '\"' && i < STRLEN - 1) {
         if (token == '\\') {
             getnext();
-
             switch (token) {
                 case 'a':
                     s[i++] = '\a';
@@ -163,14 +146,10 @@ void scanstr(char s[]) {
             }                
         } else {
             s[i++] = token;
-        }
-            
+        }            
         getnext();            
     }
-
-
     if (i == STRLEN - 1) error(12); /*the string has more than 100000 characters*/
-
     s[i] = '\0';
     match('\"');
 }
@@ -181,13 +160,11 @@ void scanstr(char s[]) {
 *   idx = index od the last character
 */
 void readFile(char file_name[]) {
-    FILE* file;    
-
+    FILE* file;
     if (!(file = fopen(file_name, "r"))) {
         printf("Error openning %s\n", file_name);
         exit(1);
     }
-
     int INSTRING = 0;
     while (idx < PROGLEN - 1 && (cont[idx] = fgetc(file)) != EOF) {
         if (cont[idx] == EOF) {
@@ -199,58 +176,47 @@ void readFile(char file_name[]) {
             } else {
                 INSTRING = 0;
             }
-
             idx++;
         } else if (cont[idx] == '@' && !INSTRING) {
             char fn[FNAMELEN];
             int j = 0;
-            while (j < FNAMELEN - 1 && (fn[j] = fgetc(file)) != '\n' && fn[j] != EOF) j++;
-            
+            while (j < FNAMELEN - 1 && (fn[j] = fgetc(file)) != '\n' && fn[j] != EOF) j++;            
             if (j == FNAMELEN - 1) {
                 printf("Read error: file name has more than 100 characters.\n");
                 exit(1);
             }
             fn[j] = '\0';
-
             readFile(fn);
         } else {
             idx++;
         }
-
         if (idx == PROGLEN - 1) {
             printf("Read error: file has more than 10000 characters.\n");
             exit(1);
         }
     }
-
     cont[idx] = '\0';
 }
 
 void optimize() {
     int p = 0;
     int c = 0;
-
     prog[p] = cont[c];
-
     while (prog[p] != '\0') {
         if (isspace(prog[p])) {
             while (isspace(cont[++c]));
             prog[p] = cont[c];            
-        } 
-        
+        }        
         if (prog[p] == '\"') {
             while ((prog[++p] = cont[++c]) != '\"');
         }
-
         if (prog[p] == '#') {
             while (cont[++c] != '\n' && cont[c] != '\0');
             prog[p] = cont[c];
             continue;
         }
-
         prog[++p] = cont[++c];          
     }
-
     prog[p] = '\0';
 }
 
@@ -262,29 +228,23 @@ void optimize() {
 */
 void markLabels() {
     double temp;
-
     if (token == '{') {
         getnext();
     } else {
         error(7); /*the program must start with {*/
     }
-
-    if (isdigit(token) || token == '+' || token == '-' || token == '.') {
+    if (isdigit(token) || token == '+' || token == '.') {
         scannum(&temp);
-        labl[idx] = temp;        
+        labl[idx] = temp;    
     }
-
     while (prog[idx] != '\0') {
         getnext();
-
-        if (token == ';') {
+        if (token == ';' || token == '}') {
             getnext();
-
             if (token == '}') {
                 getnext();
             }
-
-            if (isdigit(token) || token == '+' || token == '-' || token == '.') {
+            if (isdigit(token) || token == '+' || token == '.') {
                 scannum(&temp);
                 labl[idx] = temp;
             }
@@ -304,33 +264,27 @@ void markBounds() {
 
 void printContent() {
     printf("CONTENT:\n");
-
     int i = 0;
-
     while (cont[i] != '\0') {
         printf("%c", cont[i]);
         i++;
     }
-
     printf("\n");
 }
 
 void printProgram() {
     printf("OPTIMIZED:\n");
-
     int i = 0;
-
     while (prog[i] != '\0') {
         printf("%c", prog[i]);
         i++;
     }
-
     printf("\n");
 }
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 2.2.3\n");
+        printf("tw\tversion: 2.2.4\n");
         printf("Use: tw <file_path> [<options>]\n");
         printf("Options availables:\n");
         printf("\tc:\tprint program content text.\n");
@@ -338,7 +292,6 @@ void main(int argc, char* argv[]) {
         printf("\tcp:\tprint text and optimized program content.\n");
         exit(1);
     }
-
     idx = 0;
     readFile(argv[1]);
     optimize();
@@ -346,7 +299,6 @@ void main(int argc, char* argv[]) {
     token = prog[idx];
     markLabels();
     markBounds();
-
     if (argv[2]) {
         if (strcmp(argv[2], "c") == 0)
             printContent();
@@ -358,14 +310,11 @@ void main(int argc, char* argv[]) {
         } else {
             printf("Invalid option.\n");
         }
-    }
-    
-    printf("--------------Start execution--------------\n");
-    
+    }    
+    printf("--------------Start execution--------------\n");    
     idx = start;
     token = prog[idx];
     program();
-
     if (token == '}'){  
         dt = clock();        
         printf("\nFinished.");
@@ -383,7 +332,6 @@ void program() {
 void statement_seq() {
     while (token != '}') {
         statement();
-
         if (token == ';') {
             match(';');
         } else {
@@ -436,8 +384,7 @@ void statement() {
             } else {
                 error(5); /*Invalid command*/
             }
-    }  
-
+    }
     if (isalpha(token) || token == '$') { /*assignment*/
         assign();
     } else if (isdigit(token)) { /*lable handle*/
@@ -459,34 +406,28 @@ void num_assign() {
     char variable;
     int index;
     id(&variable, &index);
-
     if (token == '=') {
         match('=');
         int i = 0;
         var[index][i] = logical_expr();
-
         while (token == ',' && i <= VARLEN) {
             match(',');
             var[index][++i] = logical_expr();
         }
-
         if (i > VARLEN) error(13); /*the array is out of bounds*/
     } else if (token == '[') {
         match('[');
         double i = logical_expr();
         if (i > VARLEN) error(13); /*the array is out of bounds*/
         match(']');
-
         if (token == '=') {
             match('=');
             var[index][(int) i] = logical_expr();
-
             while (token == ',' && i <= VARLEN) {
                 match(',');
                 i++;
                 var[index][(int) i] = logical_expr();
             }
-
             if (i > VARLEN) error(13); /*the array is out of bounds*/
         } else {
             error(8); /*= expected*/
@@ -499,11 +440,9 @@ void num_assign() {
 void text_assign() {
     char string[STRLEN];
     char variable;
-    int index;
-    
+    int index;    
     match('$');
-    id(&variable, &index);
-    
+    id(&variable, &index);    
     if (token == '=') {
         match('=');
         scanstr(string);
@@ -512,7 +451,6 @@ void text_assign() {
         match('[');
         double i = logical_expr();
         match(']');
-
         if (token == '=') {
             match('=');
             str[index][(int) i] = logical_expr();
@@ -526,7 +464,6 @@ void text_assign() {
 
 void read() {
     container();
-
     while (token == ',') {
         match(',');
         container();
@@ -536,16 +473,13 @@ void read() {
 void container() {
     char variable;
     int index;
-
     if (isalpha(token)) {        
         id(&variable, &index);
-
         if (token == '[') {
             match('[');
             double i = logical_expr();
             if (i > VARLEN) error(13); /*the array is out of bounds*/
             match(']');
-
             scanf("%lf%*c", &var[index][(int) i]);
         } else {
             scanf("%lf%*c", &var[index][0]);
@@ -553,13 +487,11 @@ void container() {
     } else if (token == '$') {
         match('$');
         id(&variable, &index);
-
         if (token == '[') {
             match('[');
             double i = logical_expr();
             if (i > STRLEN - 1) error(13); /*the array is out of bounds*/
-            match(']');
-            
+            match(']');            
             char string[STRLEN];
             scanf("%s", string);
             str[index][(int) i] = string[0];
@@ -573,7 +505,6 @@ void container() {
 
 void write() {
     sintagma();
-
     while (token == ',') {
         match(',');
         sintagma();
@@ -583,11 +514,9 @@ void write() {
 void sintagma() {
     double result;
     char string[STRLEN];
-
     if (token == '\"') {
         int i = 1;
         while (prog[idx + i] != '\"') i++;
-
         if (prog[idx + i + 1] == ';' || prog[idx + i + 1] == ',') {
             scanstr(string);
             printf("%s", string);
@@ -598,24 +527,20 @@ void sintagma() {
     } else if (token == '$') {
         char variable;
         int index;
-
         if (prog[idx + 2] == ';' || prog[idx + 2] == ',') {            
             match('$');
             id(&variable, &index);
             printf("%s", str[index]);
         } else if (prog[idx + 2] == '[') {
             int i = 3;
-            while (prog[idx + i] != ']') i++;
-            
+            while (prog[idx + i] != ']') i++;            
             if (prog[idx + i + 1] == ';' || prog[idx + i + 1] == ',') {                
                 match('$');
                 id(&variable, &index);
-
                 match('[');
                 double i = logical_expr();
                 if (i > STRLEN - 1) error(13); /*the array is out of bounds*/
                 match(']');
-
                 printf("%c", str[index][(int) i]);
             } else {
                 result = logical_expr();
@@ -643,8 +568,7 @@ void conditional() {
     double expression = logical_expr();
     match('?');
     match('-');
-    match('>');
-    
+    match('>');    
     if (expression == 1) {
         branch();
     } else {
@@ -655,16 +579,12 @@ void conditional() {
 void branch() {
     double temp;
     int pos;
-
-    if (isdigit(token) || token == '+' || token == '-' || token == '.') {
+    if (isdigit(token) || token == '+' || token == '.') {
         scannum(&temp);
-        getnext();
-        if (token != ';') error(6);
-          
+        if (token != ';') error(6);          
         for (pos = 0; pos < PROGLEN; pos++) {
             if (temp == labl[pos]) break;
         }
-
         idx = pos;
         token = prog[idx];
     } else {
@@ -682,7 +602,6 @@ void subrotine() {
 void label() {
     double temp;
     scannum(&temp);
-    getnext();
 }
 
 void back() {
@@ -692,29 +611,24 @@ void back() {
 
 double logical_expr() {
     double temp = log_expr_term();
-
     while (token == '|') {
         match('|');
         temp = (int) temp | (int) log_expr_term();
     }
-
     return temp;
 }
 
 double log_expr_term() {
-    double temp = log_expr_factor();
-    
+    double temp = log_expr_factor();    
     while (token == '&') {
         match('&');
         temp = (int) temp & (int) log_expr_factor();
     }
-
     return temp;
 }
 
 double log_expr_factor() {
     double temp = relational_expr();
-
     switch (token) {
         case '=':
             match('=');
@@ -734,13 +648,11 @@ double log_expr_factor() {
                 error(3); /*Invalid comparison simbol*/
             }
     }
-
     return temp;
 }
 
 double relational_expr() {
-    double temp = simple_expr();
-    
+    double temp = simple_expr();    
     switch (token) {
         case '<':
             match('<');
@@ -760,13 +672,11 @@ double relational_expr() {
                 temp = (temp > simple_expr());
             }        
     }
-
     return temp;
 }
 
 double simple_expr() {
     double temp = term();
-
     while (token == '+' || token == '-') {
         switch (token) {
             case '+':
@@ -778,14 +688,12 @@ double simple_expr() {
                 temp -= term();
         }
     }
-
     return temp;
 }
 
 double term() {
     double temp = factor();
     double divisor;
-
     while (token == '*' || token == '/' || token == '%') {
         switch (token) {
             case '*':
@@ -805,31 +713,26 @@ double term() {
                 temp = (int) temp % (int) divisor;
         }       
     }
-
     return temp;
 }
 
 double factor() {
     double temp;
     char string[2];
-
     if (token == '(') {
         match('(');
         temp = logical_expr();
         match(')'); 
     } else if (isdigit(token) || token == '+' || token == '-' || token == '.') {
         scannum(&temp);
-        getnext();
     } else if (isalpha(token)) {
         char variable;
         int index;
         id(&variable, &index);
-
         if (token == '[') {
             match('[');
             double i = logical_expr();
             match(']');
-
             temp = var[index][(int) i];
         } else {
             temp = var[index][0];
@@ -842,12 +745,10 @@ double factor() {
         char variable;
         int index;
         id(&variable, &index);
-
         if (token == '[') {
             match('[');
             double i = logical_expr();
             match(']');
-
             temp = str[index][(int) i];
         } else {
             temp = str[index][0];
@@ -855,6 +756,5 @@ double factor() {
     } else {
         error(2); /*Not a valid expression*/
     }
-
     return temp;
 }
