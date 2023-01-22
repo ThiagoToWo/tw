@@ -123,26 +123,13 @@ void scanstr(char s[]) {
         if (token == '\\') {
             getnext();
             switch (token) {
-                case 'a':
-                    s[i++] = '\a';
-                    break;
-                case 'b':
-                    s[i++] = '\b';
-                    break;
-                case 'f':
-                    s[i++] = '\f';
-                    break;
-                case 'n':
-                    s[i++] = '\n';
-                    break;
-                case 'r':
-                    s[i++] = '\r';
-                    break;
-                case 't':
-                    s[i++] = '\t';
-                    break;
-                case 'v':
-                    s[i++] = '\v';                   
+                case 'a': s[i++] = '\a'; break;
+                case 'b': s[i++] = '\b'; break;
+                case 'f': s[i++] = '\f'; break;
+                case 'n': s[i++] = '\n'; break;
+                case 'r': s[i++] = '\r'; break;
+                case 't': s[i++] = '\t'; break;
+                case 'v': s[i++] = '\v';                  
             }                
         } else {
             s[i++] = token;
@@ -235,19 +222,22 @@ void markLabels() {
     }
     if (isdigit(token) || token == '+' || token == '.') {
         scannum(&temp);
-        labl[idx] = temp;    
+        if (token != ';') error(6);  
+        labl[idx] = temp;   
     }
     while (prog[idx] != '\0') {
-        getnext();
-        if (token == ';' || token == '}') {
+        if (token == ';') {
             getnext();
             if (token == '}') {
                 getnext();
             }
             if (isdigit(token) || token == '+' || token == '.') {
                 scannum(&temp);
+                if (token != ';') error(6);  
                 labl[idx] = temp;
-            }
+            }           
+        } else {
+            getnext();
         }
     }
 }
@@ -284,7 +274,7 @@ void printProgram() {
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 2.2.4\n");
+        printf("tw\tversion: 2.2.5\n");
         printf("Use: tw <file_path> [<options>]\n");
         printf("Options availables:\n");
         printf("\tc:\tprint program content text.\n");
@@ -584,6 +574,10 @@ void branch() {
         if (token != ';') error(6);          
         for (pos = 0; pos < PROGLEN; pos++) {
             if (temp == labl[pos]) break;
+        }
+        if (pos == PROGLEN) {
+            printf("The label %g does not exist\n", temp);
+            exit(1);
         }
         idx = pos;
         token = prog[idx];
