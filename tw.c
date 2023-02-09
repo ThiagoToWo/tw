@@ -119,7 +119,7 @@ void scannum(double* n) { /*get number from current token in prog*/
 void scanstr(char s[]) {
     match('\"');        
     int i = 0;
-    while (token != '\"' && i <= STRLEN - 1) {
+    while (token != '\"' && i <= STRLEN) {
         if (token == '\\') {
             getnext();
             switch (token) {
@@ -136,7 +136,7 @@ void scanstr(char s[]) {
         }            
         getnext();            
     }
-    if (i == STRLEN - 1) error(12); /*the string has more than 100000 characters*/
+    if (i > STRLEN) error(12); /*the string has more than 100000 characters*/
     s[i] = '\0';
     match('\"');
 }
