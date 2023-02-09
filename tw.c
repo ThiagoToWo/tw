@@ -119,7 +119,7 @@ void scannum(double* n) { /*get number from current token in prog*/
 void scanstr(char s[]) {
     match('\"');        
     int i = 0;
-    while (token != '\"' && i < STRLEN - 1) {
+    while (token != '\"' && i <= STRLEN - 1) {
         if (token == '\\') {
             getnext();
             switch (token) {
@@ -274,7 +274,7 @@ void printProgram() {
 
 void main(int argc, char* argv[]) {
     if (argc < 2 || argc > 3) {
-        printf("tw\tversion: 2.2.5\n");
+        printf("tw\tversion: 2.2.6\n");
         printf("Use: tw <file_path> [<options>]\n");
         printf("Options availables:\n");
         printf("\tc:\tprint program content text.\n");
@@ -374,12 +374,14 @@ void statement() {
             } else {
                 error(5); /*Invalid command*/
             }
-    }
-    if (isalpha(token) || token == '$') { /*assignment*/
-        assign();
-    } else if (isdigit(token)) { /*lable handle*/
-        label();
-    }
+            break;
+        default:
+            if (isalpha(token) || token == '$') { /*assignment*/
+                assign();
+            } else if (isdigit(token)) { /*lable handle*/
+                label();
+            }
+    }    
 }
 
 void assign() {
@@ -400,25 +402,25 @@ void num_assign() {
         match('=');
         int i = 0;
         var[index][i] = logical_expr();
-        while (token == ',' && i <= VARLEN) {
+        while (token == ',' && i < VARLEN) {
             match(',');
             var[index][++i] = logical_expr();
         }
-        if (i > VARLEN) error(13); /*the array is out of bounds*/
+        if (i >= VARLEN) error(13); /*the array is out of bounds*/
     } else if (token == '[') {
         match('[');
         double i = logical_expr();
-        if (i > VARLEN) error(13); /*the array is out of bounds*/
+        if (i >= VARLEN) error(13); /*the array is out of bounds*/
         match(']');
         if (token == '=') {
             match('=');
             var[index][(int) i] = logical_expr();
-            while (token == ',' && i <= VARLEN) {
+            while (token == ',' && i < VARLEN) {
                 match(',');
                 i++;
                 var[index][(int) i] = logical_expr();
             }
-            if (i > VARLEN) error(13); /*the array is out of bounds*/
+            if (i >= VARLEN) error(13); /*the array is out of bounds*/
         } else {
             error(8); /*= expected*/
         }
@@ -468,7 +470,7 @@ void container() {
         if (token == '[') {
             match('[');
             double i = logical_expr();
-            if (i > VARLEN) error(13); /*the array is out of bounds*/
+            if (i >= VARLEN) error(13); /*the array is out of bounds*/
             match(']');
             scanf("%lf%*c", &var[index][(int) i]);
         } else {
@@ -536,6 +538,9 @@ void sintagma() {
                 result = logical_expr();
                 printf("%.15g", result);
             }
+        } else {
+            result = logical_expr();
+            printf("%.15g", result);
         }
     } else {
         result = logical_expr();
