@@ -1,0 +1,16 @@
+tw modulos/main.txt
+tw array.txt
+tw bahskara.txt
+tw dowhile.txt
+tw elif.txt
+tw expressoes.txt
+tw fatorial.txt
+tw for-while.txt
+tw func.txt
+tw if.txt
+tw ifelse.txt
+tw maior.txt
+tw switch.txt
+tw ola.txt
+tw texto.txt
+tw sqrt.txt
